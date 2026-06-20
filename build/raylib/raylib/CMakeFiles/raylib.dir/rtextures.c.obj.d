@@ -1,0 +1,54 @@
+raylib/raylib/CMakeFiles/raylib.dir/rtextures.c.obj: \
+  C:/Frosky/Dev/3BP/raylib/src/rtextures.c \
+  C:/Frosky/Dev/3BP/raylib/src/raylib.h \
+  C:/msys64/clang64/lib/clang/19/include/stdarg.h \
+  C:/msys64/clang64/include/stdarg.h \
+  C:/msys64/clang64/lib/clang/19/include/__stdarg_header_macro.h \
+  C:/msys64/clang64/lib/clang/19/include/__stdarg___gnuc_va_list.h \
+  C:/msys64/clang64/lib/clang/19/include/__stdarg_va_list.h \
+  C:/msys64/clang64/lib/clang/19/include/__stdarg_va_arg.h \
+  C:/msys64/clang64/lib/clang/19/include/__stdarg___va_copy.h \
+  C:/msys64/clang64/lib/clang/19/include/__stdarg_va_copy.h \
+  C:/msys64/clang64/lib/clang/19/include/stdbool.h \
+  C:/Frosky/Dev/3BP/raylib/src/config.h \
+  C:/Frosky/Dev/3BP/raylib/src/rlgl.h C:/msys64/clang64/include/stdlib.h \
+  C:/msys64/clang64/include/corecrt.h C:/msys64/clang64/include/_mingw.h \
+  C:/msys64/clang64/include/_mingw_mac.h \
+  C:/msys64/clang64/include/_mingw_secapi.h \
+  C:/msys64/clang64/lib/clang/19/include/vadefs.h \
+  C:/msys64/clang64/include/vadefs.h \
+  C:/msys64/clang64/include/sdks/_mingw_ddk.h \
+  C:/msys64/clang64/include/corecrt_wstdlib.h \
+  C:/msys64/clang64/lib/clang/19/include/limits.h \
+  C:/msys64/clang64/include/limits.h C:/msys64/clang64/include/crtdefs.h \
+  C:/msys64/clang64/include/sec_api/stdlib_s.h \
+  C:/msys64/clang64/include/malloc.h \
+  C:/msys64/clang64/lib/clang/19/include/mm_malloc.h \
+  C:/msys64/clang64/include/string.h \
+  C:/msys64/clang64/include/sec_api/string_s.h \
+  C:/msys64/clang64/include/math.h C:/msys64/clang64/include/stdio.h \
+  C:/msys64/clang64/include/corecrt_stdio_config.h \
+  C:/msys64/clang64/include/_mingw_off_t.h \
+  C:/msys64/clang64/include/swprintf.inl \
+  C:/msys64/clang64/include/sec_api/stdio_s.h \
+  C:/Frosky/Dev/3BP/raylib/src/external/stb_image.h \
+  C:/msys64/clang64/lib/clang/19/include/stddef.h \
+  C:/msys64/clang64/include/stddef.h \
+  C:/msys64/clang64/lib/clang/19/include/__stddef_header_macro.h \
+  C:/msys64/clang64/lib/clang/19/include/__stddef_ptrdiff_t.h \
+  C:/msys64/clang64/lib/clang/19/include/__stddef_size_t.h \
+  C:/msys64/clang64/lib/clang/19/include/__stddef_wchar_t.h \
+  C:/msys64/clang64/lib/clang/19/include/__stddef_null.h \
+  C:/msys64/clang64/lib/clang/19/include/__stddef_offsetof.h \
+  C:/msys64/clang64/include/assert.h \
+  C:/msys64/clang64/lib/clang/19/include/stdint.h \
+  C:/msys64/clang64/include/stdint.h \
+  C:/msys64/clang64/lib/clang/19/include/__stddef_wint_t.h \
+  C:/msys64/clang64/lib/clang/19/include/emmintrin.h \
+  C:/msys64/clang64/lib/clang/19/include/xmmintrin.h \
+  C:/msys64/clang64/lib/clang/19/include/mmintrin.h \
+  C:/Frosky/Dev/3BP/raylib/src/external/rltexgpu.h \
+  C:/Frosky/Dev/3BP/raylib/src/external/qoi.h \
+  C:/Frosky/Dev/3BP/raylib/src/external/stb_image_write.h \
+  C:/Frosky/Dev/3BP/raylib/src/external/stb_perlin.h \
+  C:/Frosky/Dev/3BP/raylib/src/external/stb_image_resize2.h

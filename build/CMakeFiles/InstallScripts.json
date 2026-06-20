@@ -1,0 +1,11 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Frosky/Dev/3BP/build/cmake_install.cmake",
+		"C:/Frosky/Dev/3BP/build/raylib/cmake_install.cmake",
+		"C:/Frosky/Dev/3BP/build/raylib/raylib/cmake_install.cmake",
+		"C:/Frosky/Dev/3BP/build/raylib/raylib/external/glfw/cmake_install.cmake",
+		"C:/Frosky/Dev/3BP/build/raylib/raylib/external/glfw/src/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -9,8 +9,8 @@ int bro() {
   SetTargetFPS(60);
   while (!WindowShouldClose()) {
     BeginDrawing();
-    ClearBackground(RAYWHITE);
-    DrawText("It works!", 20, 20, 20, BLACK);
+    ClearBackground(BLACK);
+    DrawText("It works!", 20, 20, 20, WHITE);
     EndDrawing();
   }
   //CloseWindow();

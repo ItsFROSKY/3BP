@@ -3,7 +3,7 @@ project(3BP CXX)
 
 add_subdirectory(raylib)
 
-add_executable(3BP 3bp.cpp test.cpp)
+add_executable(3BP 3bp.cpp test.cpp test.h)
 
 target_link_libraries(3BP PRIVATE raylib)
 

@@ -13,6 +13,6 @@ int bro() {
     DrawText("It works!", 20, 20, 20, WHITE);
     EndDrawing();
   }
-  //CloseWindow();
+  CloseWindow();
   return 0;
 }

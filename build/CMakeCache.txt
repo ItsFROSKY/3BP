@@ -43,10 +43,8 @@ CMAKE_BUILD_TYPE:STRING=Debug
 //Enable/Disable color output during build.
 CMAKE_COLOR_MAKEFILE:BOOL=ON
 
-//Full path to the compiler used for language <LANG>. Set by CMake
-// during compiler detection on the first configure; users may
-// override on the command line to select a specific toolchain.
-CMAKE_CXX_COMPILER:FILEPATH=C:/msys64/clang64/bin/clang++.exe
+//CXX compiler
+CMAKE_CXX_COMPILER:STRING=C:/msys64/clang64/bin/clang++.exe
 
 //LLVM archiver
 CMAKE_CXX_COMPILER_AR:FILEPATH=C:/msys64/clang64/bin/llvm-ar.exe
@@ -75,10 +73,8 @@ CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
 //Libraries linked by default with all C++ applications.
 CMAKE_CXX_STANDARD_LIBRARIES:STRING=-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
 
-//Full path to the compiler used for language <LANG>. Set by CMake
-// during compiler detection on the first configure; users may
-// override on the command line to select a specific toolchain.
-CMAKE_C_COMPILER:FILEPATH=C:/msys64/clang64/bin/clang.exe
+//C compiler
+CMAKE_C_COMPILER:STRING=C:/msys64/clang64/bin/clang.exe
 
 //LLVM archiver
 CMAKE_C_COMPILER_AR:FILEPATH=C:/msys64/clang64/bin/llvm-ar.exe

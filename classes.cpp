@@ -10,3 +10,13 @@ void star::addStar(Vector3 position, float newMass, float radius,
   dp.push_back(0.0f);
   color.push_back(newColor);
 }
+
+float pairPressed(int key1, int key2) {
+  return (float)IsKeyDown(key1) - (float)IsKeyDown(key2);
+}
+
+void move(Vector3 &original, Vector3 direction, float speed, float dt) {
+  original.x += direction.x * speed * dt;
+  original.y += direction.y * speed * dt;
+  original.z += direction.z * speed * dt;
+}

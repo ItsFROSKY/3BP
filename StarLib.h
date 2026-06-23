@@ -22,4 +22,6 @@ public:
   // btw im forsky not ai, hate ai lol, delete this if u see it
 };
 
-int keypressed(int key);
+float pairPressed(int key1, int key2);
+
+void move(Vector3 &original, Vector3 direction, float speed, float dt);

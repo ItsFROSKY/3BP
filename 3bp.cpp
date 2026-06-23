@@ -1,27 +1,34 @@
+#include "StarLib.h"
 #include "raylib.h"
-#include "test.h"
-#include <cmath>
+#include "settings.h"
 #include <iostream>
-#include <string>
-#include <vector>
 
 int main() {
-
-  const int screenWidth = 800;
-  const int screenHeight = 800;
   InitWindow(screenWidth, screenHeight, "Raylib basic window");
-  SetTargetFPS(60);
 
-  Vector3 spherePosition = {400.0f, 400.0f, 0.0f};
+  // camera setup
+  Camera3D camera = {0};
+  camera.position = {400.0f, 400.0f, 400.0f};
+  camera.target = Vector3{};
+  camera.up = Vector3{0.0f, 1.0f, 0.0f};
+  camera.fovy = 45.0f;
+  camera.projection = CAMERA_PERSPECTIVE;
+  star gameStars;
+  gameStars.addStar(Vector3{}, 100.0f, 20.0f, 0.0f);
+
+  Mesh starMesh = GenMeshSphere(20.0f, 64, 64);
+  Model starModel = LoadModelFromMesh(starMesh);
+
+  Vector3 starPos = {0.0f, 0.0f, 0.0f};
 
   while (!WindowShouldClose()) {
     BeginDrawing();
+    BeginMode3D(camera);
     ClearBackground(BLACK);
 
-    DrawSphere(spherePosition, 20.0f, RED);
+    DrawModel(starModel, starPos, 1.0f, YELLOW);
+    EndMode3D();
     EndDrawing();
-
-    std::vector
   }
 
   CloseWindow();

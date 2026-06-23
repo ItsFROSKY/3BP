@@ -13,20 +13,18 @@ int main() {
   camera.up = Vector3{0.0f, 1.0f, 0.0f};
   camera.fovy = 45.0f;
   camera.projection = CAMERA_PERSPECTIVE;
-  star gameStars;
-  gameStars.addStar(Vector3{}, 100.0f, 20.0f, 0.0f);
+  star starsObj;
+  starsObj.addStar(Vector3{}, 1.0f, 1.0f, 0.0f);
 
   Mesh starMesh = GenMeshSphere(20.0f, 64, 64);
   Model starModel = LoadModelFromMesh(starMesh);
-
-  Vector3 starPos = {0.0f, 0.0f, 0.0f};
 
   while (!WindowShouldClose()) {
     BeginDrawing();
     BeginMode3D(camera);
     ClearBackground(BLACK);
 
-    DrawModel(starModel, starPos, 1.0f, YELLOW);
+    DrawModel(starModel, starsObj.pos[0], starsObj.rad[0], starsObj.color[0]);
     EndMode3D();
     EndDrawing();
   }

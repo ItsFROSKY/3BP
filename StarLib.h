@@ -21,3 +21,5 @@ public:
 
   // btw im forsky not ai, hate ai lol, delete this if u see it
 };
+
+int keypressed(int key);

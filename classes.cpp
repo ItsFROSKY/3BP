@@ -1,7 +1,7 @@
 #include "StarLib.h"
 
 void star::addStar(Vector3 position, float newMass, float radius,
-                   float velocity, Color newColor = YELLOW) {
+                   float velocity, Color newColor) {
   pos.push_back(position);
   mass.push_back(newMass);
   rad.push_back(radius);

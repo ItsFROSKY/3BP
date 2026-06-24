@@ -26,4 +26,8 @@ float pairPressed(int key1, int key2);
 
 void move(Vector3 &original, Vector3 direction, float speed, float dt);
 
-void gravity(star &starsObj, float dt);
+void gravity(star &starsObj);
+
+void applyGravity(star &starsObj, float dt);
+
+Vector3 angleConvert(double angle, float magnitude);

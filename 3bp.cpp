@@ -2,7 +2,6 @@
 #include "raylib.h"
 #include "settings.h"
 #include <iostream>
-
 using std::cout;
 
 int main() {
@@ -16,8 +15,9 @@ int main() {
   camera.fovy = 45.0f;
   camera.projection = CAMERA_PERSPECTIVE;
   star starsObj;
-  starsObj.addStar(Vector3{0.0f, 25.0f, 0.0f}, 1.0f, 1.0f, 0.0f);
-  starsObj.addStar(Vector3{50.0f, 100.0f, 50.0f}, 1.0f, 2.0f, 0.0f, RED);
+  starsObj.addStar(Vector3{0.0f, 25.0f, 0.0f}, 1.0f, 1.0f, angleConvert(30.0f, 10.0f));
+  starsObj.addStar(Vector3{1000.0f, 25.0f, 0.0f}, 100.0f, 1.0f, Vector3{0.0f, 0.0f, 0.0f} , RED);
+  float physicsTimer = 0.0f;
 
   Mesh starMesh = GenMeshSphere(20.0f, 64, 64);
   Model starModel = LoadModelFromMesh(starMesh);
@@ -33,22 +33,32 @@ int main() {
                         mouseDelta.y * mouseSensitivity, 0.0f};
     // update loop
     float dt = GetFrameTime() * simulationSpeed;
+    physicsTimer += dt;
+    if (physicsTimer >= fixedDeltaTime)
+        gravity(starsObj);
+
+    applyGravity(starsObj, dt);
 
     UpdateCameraPro(&camera, cameradirection, rotation, 0.0f);
     if (IsKeyPressed(KEY_F)) {
       camera.target = Vector3{0.0f, 0.0f, 0.0f};
     }
-    gravity(starsObj, dt);
 
     // the draw loop
     BeginDrawing();
     BeginMode3D(camera);
     ClearBackground(BLACK);
 
-    DrawGrid(64, 500.0f);
+    //DrawGrid(64, 500.0f);
     for (int i = 0; i < starsObj.pos.size(); i++) {
       DrawModel(starModel, starsObj.pos[i], starsObj.rad[i], starsObj.color[i]);
     }
+    float k = 1000;
+    float jn = 00;
+
+
+    DrawLine3D(Vector3{k,0,0}, Vector3{-k,0,0}, RED);
+    DrawLine3D(Vector3{0,0,k}, Vector3{0,0,-k}, GREEN);
 
     EndMode3D();
     EndDrawing();

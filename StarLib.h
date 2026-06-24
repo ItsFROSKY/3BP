@@ -7,7 +7,7 @@ public:
   // SoA (struct of arrays) for better cache performance
   std::vector<Vector3> pos;
   std::vector<float> mass;
-  std::vector<float> rad; // radius
+  std::vector<float> rad;   // radius
   std::vector<Vector3> vel; // velocity
   std::vector<Vector3> dv;
   std::vector<Vector3> dp; // change in position
@@ -16,7 +16,8 @@ public:
   // std::vector<float> temp;  temperature for later use
   // std::vector<float> luminosity;
 
-  void addStar(Vector3 position, float newMass, float radius, Vector3 velocity = Vector3{0.0f, 0.0f, 0.0f},
+  void addStar(Vector3 position, float newMass, float radius,
+               Vector3 velocity = Vector3{0.0f, 0.0f, 0.0f},
                Color newColor = YELLOW);
 
   // btw im forsky not ai, hate ai lol, delete this if u see it
@@ -32,4 +33,4 @@ void applyGravity(star &starsObj, float dt);
 
 Vector3 angleConvert(double angle, float magnitude);
 
-void stableTwoStars(star &stars);
+void stableTwoStars(star &stars, float swivel, float tilt);

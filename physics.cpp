@@ -1,8 +1,7 @@
+#include "StarLib.h"
 #include "settings.h"
-#include "starLib.h"
 #include <cmath>
 #include <iostream>
-
 
 void gravity(star &stars) {
   int size = stars.pos.size();
@@ -70,6 +69,8 @@ Vector3 angleConvert(double angle, float magnitude) {
 }
 
 void stableTwoStars(star &stars, float swivel, float tilt) {
+  tilt *= convert;
+  swivel *= convert;
 
   float dx = stars.pos[0].x - stars.pos[1].x;
   float dy = stars.pos[0].y - stars.pos[1].y;
@@ -77,27 +78,25 @@ void stableTwoStars(star &stars, float swivel, float tilt) {
   float d = sqrt(dx * dx + dy * dy + dz * dz);
 
   float sum = stars.mass[0] + stars.mass[1];
-  float factor = sqrt(G / (d * sum))/d;
+  float factor = sqrt(G / (d * sum)) / d;
 
   Vector3 normal;
-    normal.x = sin(tilt) * cos(swivel);
-    normal.y = sin(tilt) * sin(swivel);
-    normal.z = cos(tilt);
+  normal.x = sin(tilt) * cos(swivel);
+  normal.y = sin(tilt) * sin(swivel);
+  normal.z = cos(tilt);
 
-    Vector3 raw;
+  Vector3 raw;
   raw.x = (dy * normal.z) - (dz * normal.y);
   raw.y = (dz * normal.x) - (dx * normal.z);
   raw.z = (dx * normal.y) - (dy * normal.x);
 
   // Change stars.vel[0].x to:
-  stars.vel[0].x = factor * stars.mass[1] * dy  *raw.x;
-  stars.vel[0].y = factor * stars.mass[1] * -dx*raw.y;
-  stars.vel[0].z = factor * stars.mass[1] *raw.z;
-
-  
+  stars.vel[0].x = factor * stars.mass[1] * raw.x;
+  stars.vel[0].y = factor * stars.mass[1] * raw.y;
+  stars.vel[0].z = factor * stars.mass[1] * raw.z;
 
   // And for the second star (equal and opposite momentum if masses differ):
   stars.vel[1].x = factor * stars.mass[0] * raw.x;
   stars.vel[1].y = factor * stars.mass[0] * raw.y;
   stars.vel[1].z = factor * stars.mass[0] * raw.z;
-}   
+}

@@ -17,18 +17,17 @@ int main() {
   camera.projection = CAMERA_PERSPECTIVE;
   star starsObj;
   starsObj.addStar(Vector3{0.0f, 25.0f, 0.0f}, 1.0f, 1.0f, 0.0f);
+  starsObj.addStar(Vector3{50.0f, 100.0f, 50.0f}, 1.0f, 2.0f, 0.0f, RED);
 
   Mesh starMesh = GenMeshSphere(20.0f, 64, 64);
   Model starModel = LoadModelFromMesh(starMesh);
 
   while (!WindowShouldClose()) {
 
-
-
-     // input and movement for camera
-    Vector3 cameradirection =
-        Vector3{pairPressed(KEY_W, KEY_S)*cameraSpeed, pairPressed(KEY_D, KEY_A)*cameraSpeed,
-                pairPressed(KEY_Q, KEY_E)*cameraSpeed};
+    // input and movement for camera
+    Vector3 cameradirection = Vector3{pairPressed(KEY_W, KEY_S) * cameraSpeed,
+                                      pairPressed(KEY_D, KEY_A) * cameraSpeed,
+                                      pairPressed(KEY_Q, KEY_E) * cameraSpeed};
     Vector2 mouseDelta = GetMouseDelta();
     Vector3 rotation = {mouseDelta.x * mouseSensitivity,
                         mouseDelta.y * mouseSensitivity, 0.0f};
@@ -39,15 +38,18 @@ int main() {
     if (IsKeyPressed(KEY_F)) {
       camera.target = Vector3{0.0f, 0.0f, 0.0f};
     }
+    gravity(starsObj, dt);
 
-    //the draw loop
+    // the draw loop
     BeginDrawing();
     BeginMode3D(camera);
     ClearBackground(BLACK);
 
-   
-    DrawGrid(64, 1.0f);
-    DrawModel(starModel, starsObj.pos[0], starsObj.rad[0], starsObj.color[0]);
+    DrawGrid(64, 500.0f);
+    for (int i = 0; i < starsObj.pos.size(); i++) {
+      DrawModel(starModel, starsObj.pos[i], starsObj.rad[i], starsObj.color[i]);
+    }
+
     EndMode3D();
     EndDrawing();
   }

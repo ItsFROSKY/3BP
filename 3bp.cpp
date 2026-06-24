@@ -15,8 +15,9 @@ int main() {
   camera.fovy = 45.0f;
   camera.projection = CAMERA_PERSPECTIVE;
   star starsObj;
-  starsObj.addStar(Vector3{0.0f, 25.0f, 0.0f}, 1.0f, 1.0f, angleConvert(30.0f, 10.0f));
-  starsObj.addStar(Vector3{1000.0f, 25.0f, 0.0f}, 100.0f, 1.0f, Vector3{0.0f, 0.0f, 0.0f} , RED);
+  starsObj.addStar(Vector3{0.0f, 25.0f, 0.0f}, 1.0f, 1.0f, angleConvert(45.0f, 10.0f));
+  starsObj.addStar(Vector3{300.0f, 25.0f, 0.0f}, 10.0f, 1.0f, Vector3{0.0f, 0.0f, 0.0f} , RED);
+  stableTwoStars(starsObj);
   float physicsTimer = 0.0f;
 
   Mesh starMesh = GenMeshSphere(20.0f, 64, 64);
@@ -33,11 +34,14 @@ int main() {
                         mouseDelta.y * mouseSensitivity, 0.0f};
     // update loop
     float dt = GetFrameTime() * simulationSpeed;
-    physicsTimer += dt;
-    if (physicsTimer >= fixedDeltaTime)
-        gravity(starsObj);
 
-    applyGravity(starsObj, dt);
+    //fixed-step physics
+    physicsTimer += dt;
+    while(physicsTimer >= fixedDeltaTime) {
+      gravity(starsObj);
+      applyGravity(starsObj, fixedDeltaTime);
+      physicsTimer -= fixedDeltaTime;
+    }
 
     UpdateCameraPro(&camera, cameradirection, rotation, 0.0f);
     if (IsKeyPressed(KEY_F)) {

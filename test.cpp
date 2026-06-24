@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include "raylib.h"
 
 using namespace std;
 
@@ -17,6 +18,9 @@ int main () {
     
     double resultz = 0;
     cout << "x: "<< (float)resultx <<endl << "y: "<< (float)resulty <<endl << "z: "<<resultz;
+
+    Vector3 test = {1, 2, 3};
+  cout << "test: " << test.x << ", " << test.y << ", " << test.z << "\n";
 
     return 0;
 

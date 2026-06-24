@@ -7,7 +7,7 @@ void star::addStar(Vector3 position, float newMass, float radius,
   rad.push_back(radius);
   vel.push_back(velocity);
   dv.push_back(Vector3{0.0f, 0.0f, 0.0f});
-  dp.push_back(Vector3{0.0f, 0.0f, 0.0f}  );
+  dp.push_back(Vector3{0.0f, 0.0f, 0.0f});
   color.push_back(newColor);
 }
 

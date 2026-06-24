@@ -1,11 +1,15 @@
 #pragma once
-const int screenWidth = 1900;
-const int screenHeight = 1000;
-const float simulationSpeed = 40.0f;
-const float mouseSensitivity = 0.12f;
-const float NormalCameraSpeed = 0.12f;
-const float fixedDeltaTime = 0.01666f; // 60 checks per sec, 1/60 = 0.01666
+//const int screenWidth = 1900;
+//const int screenHeight = 1000;
+
+inline constexpr int screenWidth = 2490;
+inline constexpr int screenHeight = 1390;
+
+inline constexpr float simulationSpeed = 250.0f;
+inline constexpr float mouseSensitivity = 0.12f;
+inline constexpr float NormalCameraSpeed = 0.3f;
+inline constexpr float fixedDeltaTime = 0.01666f; // 60 checks per sec, 1/60 = 0.01666
 // vector3 (x ,z aka hieght, y)
 
-const float G = 1000.0f;       // normalize the G value
-const double convert = 0.0175; // this is pi/180
+inline constexpr float G = 500.0f;       // normalize the G value
+inline constexpr double convert = 0.0175; // this is pi/180

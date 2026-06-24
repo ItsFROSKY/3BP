@@ -5,7 +5,7 @@
 using std::cout;
 
 int main() {
-  InitWindow(screenWidth, screenHeight, "Raylib basic window");
+  InitWindow(screenWidth, screenHeight, "3 Body problem");
 
   // camera setup
   Camera3D camera = {0};
@@ -28,12 +28,12 @@ int main() {
   while (!WindowShouldClose()) {
 
     // input and movement for camera
-    Vector3 cameradirection = Vector3{pairPressed(KEY_W, KEY_S) * cameraSpeed,
-                                      pairPressed(KEY_D, KEY_A) * cameraSpeed,
-                                      pairPressed(KEY_Q, KEY_E) * cameraSpeed};
+    Vector3 cameradirection = Vector3{pairPressed(KEY_W, KEY_S) * cameraSpeed, pairPressed(KEY_D, KEY_A) * cameraSpeed, pairPressed(KEY_Q, KEY_E) * cameraSpeed};
+                                      
+                                     
     Vector2 mouseDelta = GetMouseDelta();
-    Vector3 rotation = {mouseDelta.x * mouseSensitivity,
-                        mouseDelta.y * mouseSensitivity, 0.0f};
+    Vector3 rotation = {mouseDelta.x * mouseSensitivity,  mouseDelta.y * mouseSensitivity, 0.0f};
+                      
 
     if (IsKeyDown(KEY_LEFT_SHIFT))
       cameraSpeed = 1.25f;
@@ -66,10 +66,10 @@ int main() {
     for (int i = 0; i < starsObj.pos.size(); i++) {
       DrawModel(starModel, starsObj.pos[i], starsObj.rad[i], starsObj.color[i]);
     }
-    float k = 1000;
-    float jn = 00;
 
     EndMode3D();
+
+    DrawFPS(100,100);
     EndDrawing();
   }
 

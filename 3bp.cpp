@@ -14,30 +14,35 @@ int main() {
   camera.up = Vector3{0.0f, 1.0f, 0.0f};
   camera.fovy = 45.0f;
   camera.projection = CAMERA_PERSPECTIVE;
+
+  // stars setup
   star starsObj;
   starsObj.addStar(Vector3{0.0f, 200.0f, 0.0f}, 0.5f, 1.0f);
-
   starsObj.addStar(Vector3{300.0f, 50.0f, 0.0f}, 50.0f, 5.0f, Vector3{}, RED);
-  stableTwoStars(starsObj, 90.0f, 90.0f);
-  float physicsTimer = 0.0f;
-  float cameraSpeed;
+  stableTwoStars(starsObj, 90.0f, 90.0f, 0, 1);
 
+  // vars setup
+  float physicsTimer = 0.0f;
+  float cameraSpeed = NormalCameraSpeed;
+
+  // mesh setup
   Mesh starMesh = GenMeshSphere(20.0f, 64, 64);
   Model starModel = LoadModelFromMesh(starMesh);
+
+  // gameloop
 
   while (!WindowShouldClose()) {
 
     // input and movement for camera
-    Vector3 cameradirection = Vector3{pairPressed(KEY_W, KEY_S) * cameraSpeed, pairPressed(KEY_D, KEY_A) * cameraSpeed, pairPressed(KEY_Q, KEY_E) * cameraSpeed};
-                                      
-                                     
+    Vector3 cameradirection = Vector3{pairPressed(KEY_W, KEY_S) * cameraSpeed,
+                                      pairPressed(KEY_D, KEY_A) * cameraSpeed,
+                                      pairPressed(KEY_Q, KEY_E) * cameraSpeed};
     Vector2 mouseDelta = GetMouseDelta();
-    Vector3 rotation = {mouseDelta.x * mouseSensitivity,  mouseDelta.y * mouseSensitivity, 0.0f};
-                      
+    Vector3 rotation = {mouseDelta.x * mouseSensitivity,
+                        mouseDelta.y * mouseSensitivity, 0.0f};
 
     if (IsKeyDown(KEY_LEFT_SHIFT))
       cameraSpeed = 1.25f;
-
     else
       cameraSpeed = NormalCameraSpeed;
 
@@ -68,11 +73,9 @@ int main() {
     }
 
     EndMode3D();
-
-    DrawFPS(100,100);
+    DrawFPS(100, 100);
     EndDrawing();
   }
-
   CloseWindow();
   return 0;
 }

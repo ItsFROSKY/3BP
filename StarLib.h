@@ -33,4 +33,6 @@ void applyGravity(star &starsObj, float dt);
 
 Vector3 angleConvert(double angle, float magnitude);
 
-void stableTwoStars(star &stars, float swivel, float tilt);
+void stableTwoStars(star &stars, float swivel, float tilt, int j, int k);
+
+void takeInput();

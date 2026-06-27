@@ -1,11 +1,16 @@
 #include "StarLib.h"
 #include "raylib.h"
 #include "settings.h"
+#include "raymath.h"
 #include <iostream>
 using std::cout;
 
 int main() {
   InitWindow(screenWidth, screenHeight, "3 Body problem");
+  InitAudioDevice();
+Sound spaceSound = LoadSound("../assest/space.mp3");
+Sound impactSound = LoadSound("../assest/impact.mp3");
+PlaySound(spaceSound);
 
   // camera setup
   Camera3D camera = {0};
@@ -44,6 +49,17 @@ int main() {
     // update loop
     float dt = GetFrameTime() * simulationSpeed;
 
+    //sound 
+if (!IsSoundPlaying(spaceSound)) {
+    PlaySound(spaceSound);
+}
+if (starsObj.pos.size() >= 2) {
+    float distance = Vector3Distance(starsObj.pos[0], starsObj.pos[1]);
+    if (distance < 50.0f && !IsSoundPlaying(impactSound)) {
+        PlaySound(impactSound);
+    }
+}
+
     // fixed-step physics
     physicsTimer += dt;
     while (physicsTimer >= fixedDeltaTime) {
@@ -72,7 +88,9 @@ int main() {
     DrawFPS(100,100);
     EndDrawing();
   }
-
+  UnloadSound(spaceSound);
+UnloadSound(impactSound);
+CloseAudioDevice();
   CloseWindow();
   return 0;
 }

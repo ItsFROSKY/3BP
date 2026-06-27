@@ -68,16 +68,18 @@ Vector3 angleConvert(double angle, float magnitude) {
   return result;
 }
 
-void stableTwoStars(star &stars, float swivel, float tilt) {
+void stableTwoStars(star &stars, float swivel, float tilt, int j, int k) {
+  // star num j, and star num k
+
   tilt *= convert;
   swivel *= convert;
 
-  float dx = stars.pos[0].x - stars.pos[1].x;
-  float dy = stars.pos[0].y - stars.pos[1].y;
-  float dz = stars.pos[0].z - stars.pos[1].z;
+  float dx = stars.pos[j].x - stars.pos[k].x;
+  float dy = stars.pos[j].y - stars.pos[k].y;
+  float dz = stars.pos[j].z - stars.pos[k].z;
   float d = sqrt(dx * dx + dy * dy + dz * dz);
 
-  float sum = stars.mass[0] + stars.mass[1];
+  float sum = stars.mass[j] + stars.mass[k];
   float factor = sqrt(G / (d * sum)) / d;
 
   Vector3 normal;
@@ -90,13 +92,13 @@ void stableTwoStars(star &stars, float swivel, float tilt) {
   raw.y = (dz * normal.x) - (dx * normal.z);
   raw.z = (dx * normal.y) - (dy * normal.x);
 
-  // Change stars.vel[0].x to:
-  stars.vel[0].x = factor * stars.mass[1] * raw.x;
-  stars.vel[0].y = factor * stars.mass[1] * raw.y;
-  stars.vel[0].z = factor * stars.mass[1] * raw.z;
+  // Change stars.vel[j].x to:
+  stars.vel[j].x = factor * stars.mass[k] * raw.x;
+  stars.vel[j].y = factor * stars.mass[k] * raw.y;
+  stars.vel[j].z = factor * stars.mass[k] * raw.z;
 
-  // And for the second star (equal and opposite momentum if masses differ):
-  stars.vel[1].x = factor * stars.mass[0] * raw.x;
-  stars.vel[1].y = factor * stars.mass[0] * raw.y;
-  stars.vel[1].z = factor * stars.mass[0] * raw.z;
+  // And for the star num k (equal and opposite momentum if masses differ):
+  stars.vel[k].x = factor * stars.mass[j] * raw.x;
+  stars.vel[k].y = factor * stars.mass[j] * raw.y;
+  stars.vel[k].z = factor * stars.mass[j] * raw.z;
 }

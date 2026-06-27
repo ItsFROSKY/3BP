@@ -20,7 +20,7 @@ int main() {
                                            // stars setup
   star starsObjInit;
   starsObjInit.epsilonValue(0.01);
-  star starsObj = stableSystemSave[0]; // maybe you want to run stableSystem[0],
+  star starsObj = stableSystemSave[4]; // maybe you want to run stableSystem[0],
                                        // so you change value
 
   // camera setup

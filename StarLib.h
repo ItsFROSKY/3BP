@@ -53,6 +53,7 @@ void takeInput();
 // Declaration (extern - definition in 3bp.cpp)
 inline constexpr int stableSystemSize = 5;
 extern star stableSystemSave[stableSystemSize];
+inline constexpr Vector3 closeCamera = {50.0f,50.0f,50.0f};
 
 // Initialization function (no parameters), just saves some stable systems to
 // use
@@ -63,15 +64,15 @@ inline void initStableSystem() {
                               Vector3Double{-0.01, 0.01, -5.0}, BLUE);
   stableSystemSave[0].addStar(Vector3Double{500.0, 50.0, 0.0}, 100.0f, 100.0f,
                               Vector3Double{}, RED);
-  stableSystemSave[0].epsilonValue(0.1f);
+  stableSystemSave[0].epsilonValue(0.1f, closeCamera);
 
-  stableSystemSave[1].addStar(Vector3Double{10.0, 30.0, 0.0}, 100.0f, 1.0f,
+  stableSystemSave[1].addStar(Vector3Double{10.0, 30.0, 0.0}, 100.0f, 0.8f,
                               Vector3Double{});
-  stableSystemSave[1].addStar(Vector3Double{-20.0, -10.0, 0.0}, 100.0f, 1.0f,
+  stableSystemSave[1].addStar(Vector3Double{-20.0, -10.0, 0.0}, 100.0f, 0.8f,
                               Vector3Double{}, BLUE);
-  stableSystemSave[1].addStar(Vector3Double{10.0, -30.0, 0.0}, 100.0f, 1.0f,
+  stableSystemSave[1].addStar(Vector3Double{10.0, -30.0, 0.0}, 100.0f, 0.8f,
                               Vector3Double{}, RED);
-  stableSystemSave[1].epsilonValue(10.0);
+  stableSystemSave[1].epsilonValue(1000.0, closeCamera);
 
   stableSystemSave[2].addStar(Vector3Double{10.0, 30.0, 0.0}, 100.0f, 1.0f,
                               Vector3Double{});
@@ -81,7 +82,7 @@ inline void initStableSystem() {
                               Vector3Double{}, RED);
   stableSystemSave[2].addStar(Vector3Double{-5.0, 10.0, 20.0}, 100.0f, 1.0f,
                               Vector3Double{}, PURPLE);
-  stableSystemSave[2].epsilonValue(10.0);
+  stableSystemSave[2].epsilonValue(10.0, closeCamera);
 
   stableSystemSave[3].addStar(Vector3Double{10.0, 60.0, 0.0}, 100.0f, 1.0f,
                               Vector3Double{});
@@ -93,7 +94,7 @@ inline void initStableSystem() {
                               Vector3Double{}, PURPLE);
   stableSystemSave[3].addStar(Vector3Double{-2.0, 6.0, 10.0}, 100.0f, 1.0f,
                               Vector3Double{}, GREEN);
-  stableSystemSave[3].epsilonValue(10.0);
+  stableSystemSave[3].epsilonValue(20.0, Vector3{80.0f,80.0f,80.0f});
 
   stableSystemSave[4].addStar(Vector3Double{10.0, 60.0, 5.0}, 100.0f, 1.0f,
                               Vector3Double{});
@@ -105,5 +106,5 @@ inline void initStableSystem() {
                               Vector3Double{}, PURPLE);
   stableSystemSave[4].addStar(Vector3Double{-60.0, 6.0, 10.0}, 100.0f, 1.0f,
                               Vector3Double{}, GREEN);
-  stableSystemSave[4].epsilonValue(10000.0);
+  stableSystemSave[4].epsilonValue(10000.0, Vector3{2.0f,130.0f,400.0f});
 }

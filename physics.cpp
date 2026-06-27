@@ -4,13 +4,12 @@
 #include <cmath>
 #include <iostream>
 
-void gravity(star &stars,Sound &sound) {
+void gravity(star &stars, Sound &sound) {
   int size = stars.pos.size();
 
   if (size <= 1) {
     return;
   } // if it's a single star, no nedd for gravity
-  double epsilon_squared = 0.25f;
 
   for (int i = 0; i < size; i++)
     stars.dv[i] = Vector3Double{0.0f, 0.0f, 0.0f};
@@ -26,7 +25,7 @@ void gravity(star &stars,Sound &sound) {
       float dx = stars.pos[i].x - stars.pos[j].x;
       float dy = stars.pos[i].y - stars.pos[j].y;
       float dz = stars.pos[i].z - stars.pos[j].z;
-      float d2 = dx * dx + dy * dy + dz * dz + epsilon_squared;
+      float d2 = dx * dx + dy * dy + dz * dz + stars.epsilon_squared;
       int d = sqrt(d2); // d = distance
       float d3 = d2 * d;
       float factori =
@@ -43,13 +42,9 @@ void gravity(star &stars,Sound &sound) {
       stars.dv[j].y += factorJ * dy;
       stars.dv[j].z += factorJ * dz;
 
-      
-    
-    if (d < 150.0f && !IsSoundPlaying(sound)) {
+      if (d < 150.0f && !IsSoundPlaying(sound)) {
         PlaySound(sound);
-    } //play sound if distance is less
-
-
+      } // play sound if distance is less
     }
   }
 }

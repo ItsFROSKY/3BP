@@ -9,25 +9,29 @@ void star::addStar(Vector3Double position, float newMass, float radius,
   dv.push_back(Vector3Double{0.0, 0.0, 0.0});
   dp.push_back(Vector3Double{0.0, 0.0, 0.0});
   color.push_back(newColor);
+  Vector3 cameraVar;
 }
 
-
+void star::epsilonValue(double epsilon, Vector3 cameraNew) {
+  epsilon_squared = epsilon;
+  cameraVar = cameraNew;
+}
 
 float pairPressed(int key1, int key2) {
   return (float)IsKeyDown(key1) - (float)IsKeyDown(key2);
 }
 
-void move(Vector3Double &original, Vector3Double direction, float speed, float dt) {
+void move(Vector3Double &original, Vector3Double direction, float speed,
+          float dt) {
   original.x += direction.x * speed * dt;
   original.y += direction.y * speed * dt;
   original.z += direction.z * speed * dt;
 }
 
-Vector3 convertVcetor3 (Vector3Double old) {
+Vector3 convertVcetor3(Vector3Double old) {
   Vector3 converted;
-  converted.x = (float) old.x;
-  converted.y = (float) old.y;
-  converted.z = (float) old.z;
+  converted.x = (float)old.x;
+  converted.y = (float)old.y;
+  converted.z = (float)old.z;
   return converted;
 }
-

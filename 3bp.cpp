@@ -8,23 +8,26 @@ using std::cout;
 int main() {
   InitWindow(screenWidth, screenHeight, "3 Body problem");
   InitAudioDevice();
-Sound spaceSound = LoadSound("../assest/space.mp3");
+Music spaceSound = LoadMusicStream("../assest/space.mp3");
 Sound impactSound = LoadSound("../assest/impact.mp3");
-PlaySound(spaceSound);
+PlayMusicStream(spaceSound);
+SetMusicVolume(spaceSound, MusicVolume); // 2% volume
 
   // camera setup
   Camera3D camera = {0};
   camera.position = Vector3{800.0f, 800.0f, 800.0f};
-  camera.target = Vector3{0.0f, 0.0f, 0.0f};
+  camera.target = Vector3{};
   camera.up = Vector3{0.0f, 1.0f, 0.0f};
   camera.fovy = 45.0f;
   camera.projection = CAMERA_PERSPECTIVE;
+  //0.0 is double, 0.0f is float
 
   // stars setup
   star starsObj;
-  starsObj.addStar(Vector3{0.0f, 200.0f, 0.0f}, 0.5f, 1.0f);
-  starsObj.addStar(Vector3{300.0f, 50.0f, 0.0f}, 50.0f, 5.0f, Vector3{}, RED);
-  stableTwoStars(starsObj, 90.0f, 90.0f, 0, 1);
+  starsObj.addStar(Vector3Double{-100, 200.0, -100.0}, 0.5f, 1.0f, Vector3Double{0.01, -0.01, 5.0});
+  starsObj.addStar(Vector3Double{1100, -200.0, 100.0}, 0.25f, 1.0f, Vector3Double{-0.01, 0.01, -5.0}, BLUE);
+  starsObj.addStar(Vector3Double{500.0, 50.0, 0.0}, 100.0f, 5.0f, Vector3Double{}, RED);
+  //stableTwoStars(starsObj, 90.0f, 90.0f, 0, 1);
 
   // vars setup
   float physicsTimer = 0.0f;
@@ -37,6 +40,8 @@ PlaySound(spaceSound);
   // gameloop
 
   while (!WindowShouldClose()) {
+
+    UpdateMusicStream(spaceSound); //to run  the music
 
     // input and movement for camera
     Vector3 cameradirection = Vector3{pairPressed(KEY_W, KEY_S) * cameraSpeed,
@@ -54,21 +59,15 @@ PlaySound(spaceSound);
     // update loop
     float dt = GetFrameTime() * simulationSpeed;
 
-    //sound 
-if (!IsSoundPlaying(spaceSound)) {
-    PlaySound(spaceSound);
-}
-if (starsObj.pos.size() >= 2) {
-    float distance = Vector3Distance(starsObj.pos[0], starsObj.pos[1]);
-    if (distance < 50.0f && !IsSoundPlaying(impactSound)) {
-        PlaySound(impactSound);
+    //music, to replay music when it stops
+    if (!IsMusicStreamPlaying(spaceSound)) {
+        PlayMusicStream(spaceSound);
     }
-}
 
     // fixed-step physics
     physicsTimer += dt;
     while (physicsTimer >= fixedDeltaTime) {
-      gravity(starsObj);
+      gravity(starsObj, impactSound);
       applyGravity(starsObj, fixedDeltaTime);
       physicsTimer -= fixedDeltaTime;
     }
@@ -85,16 +84,17 @@ if (starsObj.pos.size() >= 2) {
 
     DrawGrid(64, 500.0f);
     for (int i = 0; i < starsObj.pos.size(); i++) {
-      DrawModel(starModel, starsObj.pos[i], starsObj.rad[i], starsObj.color[i]);
+      DrawModel(starModel, convertVcetor3(starsObj.pos[i]), starsObj.rad[i], starsObj.color[i]);
     }
 
     EndMode3D();
     DrawFPS(100, 100);
     EndDrawing();
   }
-  UnloadSound(spaceSound);
+
+UnloadMusicStream(spaceSound);
 UnloadSound(impactSound);
 CloseAudioDevice();
-  CloseWindow();
-  return 0;
+CloseWindow();
+return 0;
 }

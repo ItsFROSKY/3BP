@@ -2,32 +2,52 @@
 #include "raylib.h"
 #include <vector>
 
+struct Vector3Double {
+  double x;
+  double y;
+  double z;
+}; //for more accuracy
+
+Vector3 convertVcetor3 (Vector3Double old);
+
 class star {
 public:
   // SoA (struct of arrays) for better cache performance
-  std::vector<Vector3> pos;
+  std::vector<Vector3Double> pos;
   std::vector<float> mass;
   std::vector<float> rad;   // radius
-  std::vector<Vector3> vel; // velocity
-  std::vector<Vector3> dv;
-  std::vector<Vector3> dp; // change in position
+  std::vector<Vector3Double> vel; // velocity
+  std::vector<Vector3Double> dv;
+  std::vector<Vector3Double> dp; // change in position
   std::vector<Color> color;
 
   // std::vector<float> temp;  temperature for later use
   // std::vector<float> luminosity;
 
-  void addStar(Vector3 position, float newMass, float radius,
-               Vector3 velocity = Vector3{0.0f, 0.0f, 0.0f},
+  void addStar(Vector3Double position, float newMass, float radius,
+               Vector3Double velocity = Vector3Double{0.0f, 0.0f, 0.0f},
                Color newColor = YELLOW);
+};
 
-  // btw im forsky not ai, hate ai lol, delete this if u see it
+class stableCollection {
+  public:
+
+  Vector3Double position;
+  float newMass;
+  float radius;
+  Vector3Double velocity;
+  Color newColor;
+  
+  void addCollection (Vector3Double position, float newMass, float radius,
+               Vector3Double velocity,
+               Color newColor);
 };
 
 float pairPressed(int key1, int key2);
 
-void move(Vector3 &original, Vector3 direction, float speed, float dt);
+void move(Vector3Double &original, Vector3Double direction, float speed, float dt);
 
-void gravity(star &starsObj);
+void gravity(star &starsObj, Sound &sound);
 
 void applyGravity(star &starsObj, float dt);
 

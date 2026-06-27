@@ -1,14 +1,19 @@
 #include "StarLib.h"
+#include "raylib.h"
 #include "settings.h"
 #include <cmath>
 #include <iostream>
 
-void gravity(star &stars) {
+void gravity(star &stars,Sound &sound) {
   int size = stars.pos.size();
-  float epsilon_squared = 0.25f;
+
+  if (size <= 1) {
+    return;
+  } // if it's a single star, no nedd for gravity
+  double epsilon_squared = 0.25f;
 
   for (int i = 0; i < size; i++)
-    stars.dv[i] = Vector3{0.0f, 0.0f, 0.0f};
+    stars.dv[i] = Vector3Double{0.0f, 0.0f, 0.0f};
 
   // reset the acceleration for each star for the new frame, so we can
   // recalculate it based on the new positions of the stars
@@ -22,7 +27,8 @@ void gravity(star &stars) {
       float dy = stars.pos[i].y - stars.pos[j].y;
       float dz = stars.pos[i].z - stars.pos[j].z;
       float d2 = dx * dx + dy * dy + dz * dz + epsilon_squared;
-      float d3 = d2 * sqrt(d2);
+      int d = sqrt(d2); // d = distance
+      float d3 = d2 * d;
       float factori =
           G * stars.mass[j] / (d3); // the acceleration of star i due to star j
       float factorJ =
@@ -36,6 +42,14 @@ void gravity(star &stars) {
       stars.dv[j].x += factorJ * dx;
       stars.dv[j].y += factorJ * dy;
       stars.dv[j].z += factorJ * dz;
+
+      
+    
+    if (d < 150.0f && !IsSoundPlaying(sound)) {
+        PlaySound(sound);
+    } //play sound if distance is less
+
+
     }
   }
 }
@@ -57,7 +71,7 @@ void applyGravity(star &stars, float dt) {
   }
 }
 
-Vector3 angleConvert(double angle, float magnitude) {
+Vector3 angleConvert(float angle, float magnitude) {
   Vector3 result;
 
   angle *= convert;
@@ -82,12 +96,12 @@ void stableTwoStars(star &stars, float swivel, float tilt, int j, int k) {
   float sum = stars.mass[j] + stars.mass[k];
   float factor = sqrt(G / (d * sum)) / d;
 
-  Vector3 normal;
+  Vector3Double normal;
   normal.x = sin(tilt) * cos(swivel);
   normal.y = sin(tilt) * sin(swivel);
   normal.z = cos(tilt);
 
-  Vector3 raw;
+  Vector3Double raw;
   raw.x = (dy * normal.z) - (dz * normal.y);
   raw.y = (dz * normal.x) - (dx * normal.z);
   raw.z = (dx * normal.y) - (dy * normal.x);

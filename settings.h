@@ -1,9 +1,9 @@
 #pragma once
-//const int screenWidth = 1900;
-//const int screenHeight = 1000;
+const int screenWidth = 1900;
+const int screenHeight = 1000;
 
-inline constexpr int screenWidth = 2490;
-inline constexpr int screenHeight = 1390;
+// inline constexpr int screenWidth = 2490;
+// inline constexpr int screenHeight = 1390;
 
 inline constexpr float simulationSpeed = 10.0f;
 inline constexpr float mouseSensitivity = 0.12f;

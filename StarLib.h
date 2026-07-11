@@ -28,7 +28,7 @@ public:
   // vector<float> luminosity;
 
   void addStar(Vector3Double position, float newMass, float radius,
-               Vector3Double velocity = Vector3Double{0.0f, 0.0f, 0.0f},
+               Vector3Double velocity = Vector3Double{0.0, 0.0, 0.0},
                Color newColor = YELLOW);
 
   void epsilonValue(double epsilon,
@@ -50,10 +50,24 @@ void stableTwoStars(star &stars, float swivel, float tilt, int j, int k);
 
 void takeInput();
 
+vector<Vector3Double> measureAcceleration(star &stars, vector<Vector3Double> tempPos, float dt, vector<Vector3Double> &DvTemp);
+
+void RK4 (star &stars, float dt);
+
+
+
 // Declaration (extern - definition in 3bp.cpp)
 inline constexpr int stableSystemSize = 5;
 extern star stableSystemSave[stableSystemSize];
 inline constexpr Vector3 closeCamera = {50.0f,50.0f,50.0f};
+
+
+
+
+
+
+
+
 
 // Initialization function (no parameters), just saves some stable systems to
 // use

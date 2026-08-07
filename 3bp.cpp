@@ -30,15 +30,6 @@ int main() {
   camera.up = Vector3{0.0f, 1.0f, 0.0f};
   camera.fovy = 60.0f;
   camera.projection = CAMERA_PERSPECTIVE;
-  // 0.0 is double, 0.0f is float
-
-  /*starsObj.addStar(Vector3Double{-100, 200.0, -100.0}, 0.5f, 20.0f,
-                   Vector3Double{0.01, -0.01, 5.0});
-  starsObj.addStar(Vector3Double{1100, -200.0, 100.0}, 0.25f, 20.0f,
-                   Vector3Double{-0.01, 0.01, -5.0}, BLUE);
-  starsObj.addStar(Vector3Double{500.0, 50.0, 0.0}, 100.0f, 100.0f,
-                   Vector3Double{}, RED);*/
-  // stableTwoStars(starsObj, 90.0f, 90.0f, 0, 1);
 
   // vars setup
   float physicsTimer = 0.0f;
@@ -47,6 +38,12 @@ int main() {
   // mesh setup
   Mesh starMesh = GenMeshSphere(1.0f, 64, 64);
   Model starModel = LoadModelFromMesh(starMesh);
+
+  // shader setup
+  Shader starShader = LoadShader("shader.vert", "shader.frag");
+  int ViewLoc = GetShaderLocation(starShader, "u_viewPos");
+  int ColorLoc = GetShaderLocation(starShader, "u_starColor");
+  starModel.materials[0].shader = starShader;
 
   // gameloop
 
@@ -86,6 +83,8 @@ int main() {
     if (IsKeyPressed(KEY_F)) {
       camera.target = Vector3{0.0f, 0.0f, 0.0f};
     }
+     SetShaderValue(starShader, ViewLoc, &camera.position, SHADER_UNIFORM_VEC3);
+    // update the shader giving it the camera position
 
     // the draw loop
     BeginDrawing();
@@ -94,8 +93,8 @@ int main() {
 
     DrawGrid(64, 500.0f);
     for (int i = 0; i < starsObj.pos.size(); i++) {
-      DrawModel(starModel, convertVcetor3(starsObj.pos[i]), starsObj.rad[i],
-                starsObj.color[i]);
+      setStarShaderColor(starShader, ColorLoc, starsObj.color[i]);
+      DrawModel(starModel, starsObj.pos[i], starsObj.rad[i], WHITE);
     }
 
     EndMode3D();

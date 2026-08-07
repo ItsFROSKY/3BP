@@ -4,22 +4,22 @@
 #include <cmath>
 #include <iostream>
 
-void updateAcceleration(star &stars, vector<Vector3Double> &tempPos, vector<Vector3Double> &dvTemp) {
+void updateAcceleration(star &stars, vector<Vector3> &tempPos, vector<Vector3> &dvTemp) {
   int size = stars.pos.size();
 
 
   for (int i = 0; i < size; i++) {
     for (int j = i + 1; j < size; j++) {
-      double dx = stars.pos[i].x - stars.pos[j].x;
-      double dy = stars.pos[i].y - stars.pos[j].y;
-      double dz = stars.pos[i].z - stars.pos[j].z;
+      float dx = stars.pos[i].x - stars.pos[j].x;
+      float dy = stars.pos[i].y - stars.pos[j].y;
+      float dz = stars.pos[i].z - stars.pos[j].z;
 
 
-      double d2 = (dx * dx) + (dy * dy) + (dz * dz) + stars.epsilon_squared;
-      double d = sqrt(d2); // d = distance
-      double d3 = d2 * d;
-      double factori = G * stars.mass[j] / (d3); // the acceleration of star i due to star j
-      double factorJ = G * stars.mass[i] / (d3); // the acceleration of star j due to star i
+      float d2 = (dx * dx) + (dy * dy) + (dz * dz) + stars.epsilon_squared;
+      float d = sqrt(d2); // d = distance
+      float d3 = d2 * d;
+      float factori = G * stars.mass[j] / (d3); // the acceleration of star i due to star j
+      float factorJ = G * stars.mass[i] / (d3); // the acceleration of star j due to star i
 
       // update the acceleration of both stars
       dvTemp[i].x -= factori * dx;
@@ -34,9 +34,9 @@ void updateAcceleration(star &stars, vector<Vector3Double> &tempPos, vector<Vect
 }
 
 
-void RK4Method (star &stars, vector<Vector3Double>& dpTemp, vector<Vector3Double>& dvTemp, vector<Vector3Double>& dp_Goal, vector<Vector3Double>& dv_Goal , float dt) {
+void RK4Method (star &stars, vector<Vector3>& dpTemp, vector<Vector3>& dvTemp, vector<Vector3>& dp_Goal, vector<Vector3>& dv_Goal , float dt) {
   int size = dpTemp.size();
-  vector<Vector3Double> tempPos(size), tempVel(size);
+  vector<Vector3> tempPos(size), tempVel(size);
 
    
 for (int i = 0; i < size; i++){
@@ -57,7 +57,7 @@ for (int i = 0; i < size; i++){
 
 void RK4 (star &stars, float dt) {
   int size = stars.pos.size();
-  vector<Vector3Double> dp1(size), dp2(size), dp3(size), dp4(size), dv1(size), dv2(size), dv3(size), dv4(size), tempPos(size), tempVel(size);
+  vector<Vector3> dp1(size), dp2(size), dp3(size), dp4(size), dv1(size), dv2(size), dv3(size), dv4(size), tempPos(size), tempVel(size);
 
   for (int i =0; i < size; i++) {
     dp1[i] = stars.vel[i];
@@ -108,12 +108,12 @@ void stableTwoStars(star &stars, float swivel, float tilt, int j, int k) {
   float sum = stars.mass[j] + stars.mass[k];
   float factor = sqrt(G / (d * sum)) / d;
 
-  Vector3Double normal;
+  Vector3 normal;
   normal.x = sin(tilt) * cos(swivel);
   normal.y = sin(tilt) * sin(swivel);
   normal.z = cos(tilt);
 
-  Vector3Double raw;
+  Vector3 raw;
   raw.x = (dy * normal.z) - (dz * normal.y);
   raw.y = (dz * normal.x) - (dx * normal.z);
   raw.z = (dx * normal.y) - (dy * normal.x);

@@ -12,7 +12,7 @@ void gravity(star &stars, Sound &sound) {
   } // if it's a single star, no nedd for gravity
 
   for (int i = 0; i < size; i++)
-    stars.dv[i] = Vector3Double{0.0, 0.0, 0.0};
+    stars.dv[i] = Vector3{0.0f, 0.0f, 0.0f};
 
   // reset the acceleration for each star for the new frame, so we can
   // recalculate it based on the new positions of the stars
@@ -22,15 +22,15 @@ void gravity(star &stars, Sound &sound) {
 
   for (int i = 0; i < size; i++) {
     for (int j = i + 1; j < size; j++) {
-      double dx = stars.pos[i].x - stars.pos[j].x;
-      double dy = stars.pos[i].y - stars.pos[j].y;
-      double dz = stars.pos[i].z - stars.pos[j].z;
-      double d2 = dx * dx + dy * dy + dz * dz + stars.epsilon_squared;
-      double d = sqrt(d2); // d = distance
-      double d3 = d2 * d;
-      double factori =
+      float dx = stars.pos[i].x - stars.pos[j].x;
+      float dy = stars.pos[i].y - stars.pos[j].y;
+      float dz = stars.pos[i].z - stars.pos[j].z;
+      float d2 = dx * dx + dy * dy + dz * dz + stars.epsilon_squared;
+      float d = sqrt(d2); // d = distance
+      float d3 = d2 * d;
+      float factori =
           G * stars.mass[j] / (d3); // the acceleration of star i due to star j
-      double factorJ =
+      float factorJ =
           G * stars.mass[i] / (d3); // the acceleration of star j due to star i
 
       // update the acceleration of both stars
@@ -91,12 +91,12 @@ void stableTwoStars(star &stars, float swivel, float tilt, int j, int k) {
   float sum = stars.mass[j] + stars.mass[k];
   float factor = sqrt(G / (d * sum)) / d;
 
-  Vector3Double normal;
+  Vector3 normal;
   normal.x = sin(tilt) * cos(swivel);
   normal.y = sin(tilt) * sin(swivel);
   normal.z = cos(tilt);
 
-  Vector3Double raw;
+  Vector3 raw;
   raw.x = (dy * normal.z) - (dz * normal.y);
   raw.y = (dz * normal.x) - (dx * normal.z);
   raw.z = (dx * normal.y) - (dy * normal.x);

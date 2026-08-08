@@ -78,9 +78,6 @@ void RK4 (star &stars, float dt) {
     stars.vel[i].y += (dt/6.0f)*(dv1[i].y + 2.0f*(dv2[i].y + dv3[i].y) + dv4[i].y);
     stars.vel[i].z += (dt/6.0f)*(dv1[i].z + 2.0f*(dv2[i].z + dv3[i].z) + dv4[i].z);
   }
-
-
-
 }
 
 Vector3 angleConvert(float angle, float magnitude) {

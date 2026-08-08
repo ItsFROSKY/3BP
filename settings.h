@@ -8,7 +8,8 @@ inline constexpr int screenHeight = 1390;
 inline constexpr float simulationSpeed = 150.0f;
 inline constexpr float mouseSensitivity = 0.12f;
 inline constexpr float NormalCameraSpeed = 0.03f;
-inline constexpr float fixedDeltaTime = 0.01666f; // 60 checks per sec, 1/60 = 0.01666
+
+inline constexpr float fixedDeltaTime = 0.00833f; // 120 checks per sec, 1/120 = 0.00833
 // vector3 (x ,z aka hieght, y)
 
 inline constexpr float G = 200.0f;        // normalize the G value

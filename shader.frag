@@ -16,7 +16,7 @@ vec3 hashGrad(vec3 p) {
 }
 
 // True 3D Perlin Gradient Noise with C2 Continuity
-float perlinNoise3D(vec3 p) {
+float noise3D(vec3 p) {
     vec3 i = floor(p);
     vec3 f = fract(p);
 
@@ -43,6 +43,16 @@ float perlinNoise3D(vec3 p) {
 
 float fbm(vec3 p) {
     float total = 0.0;
+    float freq = 1.0
+    float amp = 0.5;
+
+    for (int i =0; i < 5; i++) {
+        total += amp*noise3D(freq*p);
+        amp *= 2.0f;
+        freq *= 0,5f;
+    }
+
+    return total;
 }
 
 void main(){

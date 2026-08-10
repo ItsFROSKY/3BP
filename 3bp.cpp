@@ -41,9 +41,14 @@ int main() {
 
   // shader setup
   Shader starShader = LoadShader("shader.vert", "shader.frag");
+   // Fetch Uniform Locations
   int ViewLoc = GetShaderLocation(starShader, "u_viewPos");
   int ColorLoc = GetShaderLocation(starShader, "u_starColor");
+  int timeLoc      = GetShaderLocation(starShader, "u_time");
+  
   starModel.materials[0].shader = starShader;
+
+  
 
   // gameloop
 
@@ -66,6 +71,18 @@ int main() {
 
     // update loop
     float dt = GetFrameTime() * simulationSpeed;
+    UpdateCameraPro(&camera, cameradirection, rotation, 0.0f);
+    if (IsKeyPressed(KEY_F)) {
+      camera.target = Vector3{0.0f, 0.0f, 0.0f};
+    }
+
+
+    // Update Global Uniforms
+    float floatCurrentTime = swirlFactor * (float)GetTime();
+    float ShadertTime = fmodf(floatCurrentTime, 1000.0f);
+    SetShaderValue(starShader, timeLoc, &ShadertTime, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(starShader, ViewLoc, &camera.position, SHADER_UNIFORM_VEC3);
+    // update the shader giving it the camera position
 
     // music, to replay music when it stops
     if (!IsMusicStreamPlaying(spaceSound)) {
@@ -79,12 +96,7 @@ int main() {
       physicsTimer -= fixedDeltaTime;
     }
 
-    UpdateCameraPro(&camera, cameradirection, rotation, 0.0f);
-    if (IsKeyPressed(KEY_F)) {
-      camera.target = Vector3{0.0f, 0.0f, 0.0f};
-    }
-     SetShaderValue(starShader, ViewLoc, &camera.position, SHADER_UNIFORM_VEC3);
-    // update the shader giving it the camera position
+
 
     // the draw loop
     BeginDrawing();
@@ -95,6 +107,9 @@ int main() {
     for (int i = 0; i < starsObj.pos.size(); i++) {
       setStarShaderColor(starShader, ColorLoc, starsObj.color[i]);
       DrawModel(starModel, starsObj.pos[i], starsObj.rad[i], WHITE);
+      /*DrawModelEx(starModel, starsObj.pos[i], Vector3{0.0f, 1.0f, 0.0f}, 0.0f,
+                  Vector3{starsObj.rad[i], starsObj.rad[i], starsObj.rad[i]},
+                  WHITE);*/
     }
 
     EndMode3D();

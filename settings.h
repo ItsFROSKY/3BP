@@ -1,9 +1,11 @@
 #pragma once
-const int screenWidth = 1900;
-const int screenHeight = 1000;
+//const int screenWidth = 1900;
+//const int screenHeight = 1000;
+//const int screenWidth = 1000;
+//const int screenHeight = 500;
 
-// inline constexpr int screenWidth = 2490;
-// inline constexpr int screenHeight = 1390;
+inline constexpr int screenWidth = 2490;
+inline constexpr int screenHeight = 1390;
 
 // inline constexpr float simulationSpeed = 150.0f;
 inline constexpr float simulationSpeed = 1.0f;

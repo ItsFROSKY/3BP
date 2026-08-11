@@ -2,12 +2,19 @@
 in vec3 fragNormal;
 in vec3 fragPosition;
 in vec3 fragLocalPos;
+//flat in float star_distance_to_camera;
 
 uniform vec3 u_viewPos;
 uniform vec3 u_starColor;
 uniform float u_time;
 
 out vec4 outputColor;
+
+//C2 continuous interpolation function
+/*float smootherstep(float edge0, float edge1, float x) {
+    x = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+    return x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
+}*/
 
 // 3D Random Gradient Vector Generator
 vec3 hashGrad(vec3 p) {
@@ -24,6 +31,7 @@ float noise3D(vec3 p) {
 
     // C2 quintic curve
     vec3 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+
 
     // Gradients and dot products at 8 corners
     float g000 = dot(hashGrad(i + vec3(0,0,0)), f - vec3(0,0,0));
@@ -111,9 +119,8 @@ float domainWrap(vec3 p, float time, float wrapStrength) {
 }
 
 void main() {
-    vec3 pos = fragLocalPos * 3.0 + vec3(0.0, u_time * 0.1, 0.0);
 
-    
+    vec3 pos = fragLocalPos * 3.0 + vec3(0.0, u_time * 0.1, 0.0);
     float baseClouds = domainWrap(pos, u_time, 25.0);
 
     // magnetic filaments
@@ -129,7 +136,7 @@ void main() {
 
     // COMBINE CELLULAR NOISE WITH BASE CLOUDS & FILAMENTS
     // Apply granules to baseClouds: cell centers brighten while borders etch dark channels
-    float structuredBase = baseClouds * (1.0 + granules * 0.95);
+    float structuredBase = baseClouds * (0.55 + granules * 1.0);
 
     // Add filaments on top of structured cell surface
     float plasmaPattern = structuredBase * 0.6 + (filaments * structuredBase) * 0.7;

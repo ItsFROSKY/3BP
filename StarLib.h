@@ -67,13 +67,14 @@ inline constexpr Vector3 closeCamera = {50.0f,50.0f,50.0f};
 
 // Initialization function (no parameters), just saves some stable systems to
 // use
-inline void initStableSystem() {
+inline void initStableSystem() { 
+  stableSystemSave[0].addStar(Vector3{500.0, 50.0, 0.0}, 100.0f, 100.0f,
+                              Vector3{}, RED);
   stableSystemSave[0].addStar(Vector3{-100, 200.0, -100.0}, 0.5f, 20.0f,
                               Vector3{0.01, -0.01, 5.0});
   stableSystemSave[0].addStar(Vector3{1100, -200.0, 100.0}, 0.25f, 20.0f,
                               Vector3{-0.01, 0.01, -5.0}, BLUE);
-  stableSystemSave[0].addStar(Vector3{500.0, 50.0, 0.0}, 100.0f, 100.0f,
-                              Vector3{}, RED);
+ 
   stableSystemSave[0].epsilonValue(0.1f, closeCamera);
 
   stableSystemSave[1].addStar(Vector3{10.0, 30.0, 0.0}, 100.0f, 0.8f,

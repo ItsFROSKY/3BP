@@ -90,9 +90,9 @@ float ridgeLoops(vec3 p) {
     float freq = 1.0;
     float amp = 0.5;
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
         float n = 1.0 - abs(noise3D(p * freq));
-        n = n*n*n; // Sharpen ridges
+        n = pow(n, 3.0); // Sharpen ridges
         total += n * amp;
         freq *= 2.2;
         amp *= 0.5;
@@ -111,25 +111,25 @@ float domainWrap(vec3 p, float time, float wrapStrength) {
 }
 
 void main() {
-    vec3 pos = fragLocalPos * 3.0;
+    vec3 pos = fragLocalPos * 3.0 + vec3(0.0, u_time * 0.1, 0.0);
 
     
-    float baseClouds = domainWrap(pos, u_time, 2.2);
+    float baseClouds = domainWrap(pos, u_time, 25.0);
 
     // magnetic filaments
-    vec3 loopPos = pos * 2.5 + vec3(u_time * 0.1, 0.0, u_time * 0.05);
+    vec3 loopPos = pos * 100.0 + vec3(u_time * 0.1, 0.0, u_time * 0.05);
     float filaments = ridgeLoops(loopPos);
 
     // VORONOI GRANULATION (Solar Convective Cells)
     // Scale position by 32.0 for fine cell resolution
-    vec3 granPos = fragLocalPos * 32.0 + vec3(0.0, u_time * 0.15, 0.0);
+    vec3 granPos = fragLocalPos * 50.0 + vec3(0.0, u_time * 0.15, 0.0);
     
-    // Lower power exponent (1.4 instead of 1.8) makes cell borders wider and more visible
+    // higher power exponent makes cell borders wider and more visible
     float granules = pow(voronoi3D(granPos), 1.8);
 
     // COMBINE CELLULAR NOISE WITH BASE CLOUDS & FILAMENTS
     // Apply granules to baseClouds: cell centers brighten while borders etch dark channels
-    float structuredBase = baseClouds * (0.55 + granules * 0.55);
+    float structuredBase = baseClouds * (1.0 + granules * 0.95);
 
     // Add filaments on top of structured cell surface
     float plasmaPattern = structuredBase * 0.6 + (filaments * structuredBase) * 0.7;
@@ -144,16 +144,16 @@ void main() {
     vec3 colPeak  = mix(maxColor * 2.0, vec3(2.2, 2.2, 2.2), 0.4);
 
     vec3 PlasmaCol = mix(colDark, colOrign, smoothstep(0.0, 0.35, plasmaPattern));
-    PlasmaCol      = mix(PlasmaCol, colHot, smoothstep(0.35, 0.75, plasmaPattern));
-    PlasmaCol      = mix(PlasmaCol, colPeak, smoothstep(0.82, 0.98, plasmaPattern));
+    PlasmaCol = mix(PlasmaCol, colHot, smoothstep(0.35, 0.75, plasmaPattern));
+    PlasmaCol = mix(PlasmaCol, colPeak, smoothstep(0.82, 0.98, plasmaPattern));
 
     // LIMB & RIM GLOW
     vec3 V = normalize(u_viewPos - fragPosition);
     vec3 N = normalize(fragNormal);
     float dotV = max(dot(N, V), 0.0);
-    float limb = pow(dotV, 0.4);
+    float limb = pow(dotV, 0.9); // Adjust limb darkening exponent for more realistic effect
 
-    float edgeFire = fbm(fragLocalPos * 12.0 - u_time * 0.25);
+    float edgeFire = fbm(fragLocalPos * 100.0 - u_time * 1.0);
     float rim = pow(1.0 - dotV, 3.5) * (1.0 + edgeFire * 1.8);
     vec3 rimGlow = mix(u_starColor, colHot, 0.6) * rim;
 

@@ -1,22 +1,19 @@
 #version 330
 
-// 1. INPUTS (From Raylib's Mesh Data)
 in vec3 vertexPosition;
 in vec3 vertexNormal;
 
-// 2. OUTPUTS (Passed to shader.frag)
 out vec3 fragPosition;
 out vec3 fragNormal;
 out vec3 fragLocalPos;
 //flat out float star_distance_to_camera;
 
-// 3. UNIFORMS (Provided automatically by Raylib)
+// UNIFORMS
 uniform mat4 mvp;
 uniform mat4 matModel;
 uniform mat4 matNormal;
 uniform vec3 u_viewPos;
 
-// 4. MAIN FUNCTION
 void main() {
     fragLocalPos = vertexPosition;
     fragPosition = vec3(matModel * vec4(vertexPosition, 1.0));

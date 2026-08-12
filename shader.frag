@@ -120,7 +120,9 @@ float domainWrap(vec3 p, float time, float wrapStrength) {
 
 void main() {
 
+    // 3.0 is the scale factor, smaller values make patterns bigger, larger values make them smaller
     vec3 pos = fragLocalPos * 3.0 + vec3(0.0, u_time * 0.1, 0.0);
+    // 25.0 is the wrap strength, Higher values makes whirlpool patterns; lower values make clouds smooth and uniform
     float baseClouds = domainWrap(pos, u_time, 25.0);
 
     // magnetic filaments
@@ -128,14 +130,12 @@ void main() {
     float filaments = ridgeLoops(loopPos);
 
     // VORONOI GRANULATION (Solar Convective Cells)
-    // Scale position by 32.0 for fine cell resolution
+    // Scale position by 50.0 for fine cell resolution, higher values make cells smaller aka they blend less, lower values make them larger aka they blend more, like fluids
     vec3 granPos = fragLocalPos * 50.0 + vec3(0.0, u_time * 0.15, 0.0);
     
-    // higher power exponent makes cell borders wider and more visible
+    // small power exponent makes shader more bright, higher exponent makes it more dark
     float granules = pow(voronoi3D(granPos), 1.8);
 
-    // COMBINE CELLULAR NOISE WITH BASE CLOUDS & FILAMENTS
-    // Apply granules to baseClouds: cell centers brighten while borders etch dark channels
     float structuredBase = baseClouds * (0.55 + granules * 1.0);
 
     // Add filaments on top of structured cell surface
@@ -148,11 +148,12 @@ void main() {
 
     vec3 maxColor = u_starColor / max(max(u_starColor.r, u_starColor.g), max(u_starColor.b, 0.001));
     vec3 colHot   = mix(colOrign, maxColor + vec3(0.4, 0.35, 0.1), 0.85);
-    vec3 colPeak  = mix(maxColor * 2.0, vec3(2.2, 2.2, 2.2), 0.4);
+    vec3 colPeak  = mix(maxColor * 4.0, vec3(2.2, 2.2, 2.2), 0.4);
 
-    vec3 PlasmaCol = mix(colDark, colOrign, smoothstep(0.0, 0.35, plasmaPattern));
+    // Numbers represent the color palette ratios, how often each color appears in the final plasma pattern
+    vec3 PlasmaCol = mix(colDark, colOrign, smoothstep(0.15, 0.35, plasmaPattern));
     PlasmaCol = mix(PlasmaCol, colHot, smoothstep(0.35, 0.75, plasmaPattern));
-    PlasmaCol = mix(PlasmaCol, colPeak, smoothstep(0.82, 0.98, plasmaPattern));
+    PlasmaCol = mix(PlasmaCol, colPeak, smoothstep(0.75, 0.98, plasmaPattern));
 
     // LIMB & RIM GLOW
     vec3 V = normalize(u_viewPos - fragPosition);
@@ -161,7 +162,9 @@ void main() {
     float limb = pow(dotV, 0.9); // Adjust limb darkening exponent for more realistic effect
 
     float edgeFire = fbm(fragLocalPos * 100.0 - u_time * 1.0);
-    float rim = pow(1.0 - dotV, 3.5) * (1.0 + edgeFire * 1.8);
+    float sizeRim = 5.0; // Adjust this value to control the size of the outer atmosphere rim glow, bigger values make rim more thin and sharper, smaller values make it thicker and more diffuse
+    float rim = pow(1.0 - dotV, sizeRim) * (1.0 + edgeFire * 1.8);
+    // 0.6 is the rim glow intensity, you can adjust it to make the rim glow more or less intense, aka more means closer to the star color, less means closer to the hot color
     vec3 rimGlow = mix(u_starColor, colHot, 0.6) * rim;
 
     vec3 finalRGB = (PlasmaCol * limb) + rimGlow;

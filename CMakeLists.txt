@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(raylib)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shader.vert ${CMAKE_CURRENT_BINARY_DIR}/shader.vert COPYONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shader.frag ${CMAKE_CURRENT_BINARY_DIR}/shader.frag COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shaders/shader.vert ${CMAKE_CURRENT_BINARY_DIR}/shaders/shader.vert COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/shaders/shader.frag ${CMAKE_CURRENT_BINARY_DIR}/shaders/shader.frag COPYONLY)
 
 add_executable(3BP 3bp.cpp classes_and_functions.cpp physics.cpp)
 

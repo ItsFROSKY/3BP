@@ -56,7 +56,7 @@ float fbm(vec3 p) {
     float freq = 1.0;
     float amp = 0.5;
 
-    for (int i =0; i < 5; i++) {
+    for (int i =0; i < 3; i++) {
         total += amp*noise3D(p*freq);
         amp *= 0.5;
         freq *= 2.0;
@@ -98,7 +98,7 @@ float ridgeLoops(vec3 p) {
     float freq = 1.0;
     float amp = 0.5;
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 3; i++) {
         float n = 1.0 - abs(noise3D(p * freq));
         n = pow(n, 3.0); // Sharpen ridges
         total += n * amp;

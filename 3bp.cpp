@@ -147,7 +147,7 @@ SetShaderValue(postShader, GetShaderLocation(postShader, "u_exposure"), &exposur
     SetShaderValue(starShader, ViewLoc, &camera.position, SHADER_UNIFORM_VEC3);
 
     SetShaderValue(skyShader, skyCamDirLoc, &camForward, SHADER_UNIFORM_VEC3);
-    SetShaderValue(skyShader, skyTimeLoc, &time, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(skyShader, skyTimeLoc, &ShadertTime, SHADER_UNIFORM_FLOAT);
     // update the shader giving it the camera position
 
     // music, to replay music when it stops
@@ -178,31 +178,32 @@ SetShaderValue(postShader, GetShaderLocation(postShader, "u_exposure"), &exposur
     DrawGrid(64, 500.0f);
     for (int i = 0; i < starsObj.pos.size(); i++) {
       Vector3 bbColor = GetBlackbodyColorCPU(starsObj.temp[i]); // e.g., 5778.0f
-            float luminosity = starsObj.luminosity[i];                       // e.g., 10.0f
+      bbColor = starsObj.ColorNormalized[i]; // Use pre-normalized color values
+      float luminosity = starsObj.luminosity[i];
 
-            // Set Photosphere Uniforms
-            SetShaderValue(starShader, starBbLoc, &bbColor, SHADER_UNIFORM_VEC3);
-            SetShaderValue(starShader, starLumiLoc, &luminosity, SHADER_UNIFORM_FLOAT);
-            
-            // DRAW YOUR STAR MODEL AS USUAL
-            starModel.materials[0].shader = starShader;
-            DrawModel(starModel, starsObj.pos[i], starsObj.rad[i], WHITE);
+      // Set Photosphere Uniforms
+      SetShaderValue(starShader, starBbLoc, &bbColor, SHADER_UNIFORM_VEC3);
+      SetShaderValue(starShader, starLumiLoc, &luminosity, SHADER_UNIFORM_FLOAT);
+      
+      // DRAW YOUR STAR MODEL AS USUAL
+      starModel.materials[0].shader = starShader;
+      DrawModel(starModel, starsObj.pos[i], starsObj.rad[i], WHITE);
 
-            // DRAW ADDITIVE CORONA SHELLS
-            starModel.materials[0].shader = coronaShader;
-            SetShaderValue(coronaShader, coronaBbLoc, &bbColor, SHADER_UNIFORM_VEC3);
-            SetShaderValue(coronaShader, coronaLumiLoc, &luminosity, SHADER_UNIFORM_FLOAT);
+      // DRAW ADDITIVE CORONA SHELLS
+      starModel.materials[0].shader = coronaShader;
+      SetShaderValue(coronaShader, coronaBbLoc, &bbColor, SHADER_UNIFORM_VEC3);
+      SetShaderValue(coronaShader, coronaLumiLoc, &luminosity, SHADER_UNIFORM_FLOAT);
 
-            rlDisableDepthMask();
-            BeginBlendMode(BLEND_ADDITIVE);
-                float shellScales[3] = { 1.08f, 1.16f, 1.24f };
-                for (float scale : shellScales) {
-                    SetShaderValue(coronaShader, coronaScaleLoc, &scale, SHADER_UNIFORM_FLOAT);
-                    DrawModelEx(starModel, starsObj.pos[i], {0, 1, 0}, 0.0f, 
-                                {starsObj.rad[i], starsObj.rad[i], starsObj.rad[i]}, WHITE);
-                }
-            EndBlendMode();
-            rlEnableDepthMask();
+      rlDisableDepthMask();
+      BeginBlendMode(BLEND_ADDITIVE);
+          float shellScales[3] = { 1.08f, 1.16f, 1.24f };
+          for (float scale : shellScales) {
+              SetShaderValue(coronaShader, coronaScaleLoc, &scale, SHADER_UNIFORM_FLOAT);
+              DrawModelEx(starModel, starsObj.pos[i], {0, 1, 0}, 0.0f, 
+                          {starsObj.rad[i], starsObj.rad[i], starsObj.rad[i]}, WHITE);
+          }
+      EndBlendMode();
+      rlEnableDepthMask();
 
 
     }

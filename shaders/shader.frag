@@ -159,7 +159,7 @@ void main() {
     // COLOR PALETTE & RAMP SETUP (Driven by CPU Blackbody Uniform u_blackbodyColor)
     vec3 baseColor = (length(u_blackbodyColor) > 0.001) ? u_blackbodyColor : u_starColor;
 
-    vec3 colDark  = baseColor * 0.12; // Deep cell boundaries
+    vec3 colDark  = baseColor * 0.05; // Deep cell boundaries
     vec3 colOrign = baseColor;
 
     vec3 maxColor = baseColor / max(max(baseColor.r, baseColor.g), max(baseColor.b, 0.001));
@@ -167,8 +167,8 @@ void main() {
     vec3 colPeak  = mix(maxColor * 4.0, vec3(2.2, 2.2, 2.2), 0.4);
 
     // Numbers represent the color palette ratios, how often each color appears in the final plasma pattern
-    vec3 PlasmaCol = mix(colDark, colOrign, smoothstep(0.15, 0.35, plasmaPattern));
-    PlasmaCol = mix(PlasmaCol, colHot, smoothstep(0.35, 0.75, plasmaPattern));
+    vec3 PlasmaCol = mix(colDark, colOrign, smoothstep(0.25, 0.4, plasmaPattern));
+    PlasmaCol = mix(PlasmaCol, colHot, smoothstep(0.4, 0.75, plasmaPattern));
     PlasmaCol = mix(PlasmaCol, colPeak, smoothstep(0.75, 0.98, plasmaPattern));
 
     // Apply Sunspots (Umbra/Penumbra Suppression)

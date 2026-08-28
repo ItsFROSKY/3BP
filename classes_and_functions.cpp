@@ -14,6 +14,8 @@ void star::addStar(Vector3 position, float newMass, float radius,
   temp.push_back(Newtemperature);
   luminosity.push_back(Newluminosity);
   Vector3 cameraVar;
+  Vector3 TempColorNormalized = {newColor.r / 255.0f, newColor.g / 255.0f, newColor.b / 255.0f};
+  ColorNormalized.push_back(TempColorNormalized);
 }
 
 void star::epsilonValue(double epsilon, Vector3 cameraNew) {

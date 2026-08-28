@@ -127,6 +127,15 @@ SetShaderValue(postShader, GetShaderLocation(postShader, "u_exposure"), &exposur
     Vector3 rotation = {mouseDelta.x * mouseSensitivity,
                         mouseDelta.y * mouseSensitivity, 0.0f};
 
+    float time = (float)GetTime();
+
+SetShaderValue(skyShader, timeLoc, &time,SHADER_UNIFORM_FLOAT
+);
+
+Vector2 resolution = {(float)GetScreenWidth(), (float)GetScreenHeight()};
+
+SetShaderValue(skyShader, skyResLoc, &resolution,SHADER_UNIFORM_VEC2);
+
     if (IsKeyDown(KEY_LEFT_SHIFT))
       cameraSpeed = 0.5f;
     else
@@ -135,6 +144,8 @@ SetShaderValue(postShader, GetShaderLocation(postShader, "u_exposure"), &exposur
     // update loop
     float dt = GetFrameTime() * simulationSpeed;
     UpdateCameraPro(&camera, cameradirection, rotation, 0.0f);
+    Vector3 camDir = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
+    SetShaderValue(skyShader, GetShaderLocation(skyShader, "u_cameraDir"), &camDir, SHADER_UNIFORM_VEC3);
     if (IsKeyPressed(KEY_F)) {
       camera.target = Vector3{0.0f, 0.0f, 0.0f};
     }

@@ -59,6 +59,7 @@ int starTimeLoc     = GetShaderLocation(starShader, "u_time");
 int starBbLoc       = GetShaderLocation(starShader, "u_blackbodyColor");
 int starLumiLoc     = GetShaderLocation(starShader, "u_luminosity");
 int starColorLoc    = GetShaderLocation(starShader, "u_starColor");
+int starUseBbLoc = GetShaderLocation(starShader, "u_useBlackbody");
 
 int coronaViewPosLoc = GetShaderLocation(coronaShader, "u_viewPos");
 int coronaTimeLoc    = GetShaderLocation(coronaShader, "u_time");
@@ -177,11 +178,17 @@ SetShaderValue(postShader, GetShaderLocation(postShader, "u_exposure"), &exposur
     BeginMode3D(camera);
     DrawGrid(64, 500.0f);
     for (int i = 0; i < starsObj.pos.size(); i++) {
-      Vector3 bbColor = GetBlackbodyColorCPU(starsObj.temp[i]); // e.g., 5778.0f
-      bbColor = starsObj.ColorNormalized[i]; // Use pre-normalized color values
+      Vector3 bbColor;
+      if(starsObj.BlackbodyColorActivation[i])
+       bbColor = starsObj.BBColor[i];
+
+       else bbColor = starsObj.ColorNormalized[i];
+       
       float luminosity = starsObj.luminosity[i];
 
       // Set Photosphere Uniforms
+      bool useBB = (int)starsObj.BlackbodyColorActivation[i];
+      SetShaderValue(starShader, starUseBbLoc, &useBB, SHADER_UNIFORM_INT);
       SetShaderValue(starShader, starBbLoc, &bbColor, SHADER_UNIFORM_VEC3);
       SetShaderValue(starShader, starLumiLoc, &luminosity, SHADER_UNIFORM_FLOAT);
       

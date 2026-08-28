@@ -7,7 +7,7 @@
 inline constexpr int screenWidth = 2490;
 inline constexpr int screenHeight = 1390;
 
-inline constexpr float simulationSpeed = 10.0f;
+inline constexpr float simulationSpeed = 1.0f;
 inline constexpr float mouseSensitivity = 0.12f;
 inline constexpr float NormalCameraSpeed = 0.2f;
 inline constexpr float swirlFactor =

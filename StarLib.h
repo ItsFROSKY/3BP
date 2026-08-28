@@ -20,6 +20,7 @@ public:
   vector<float> temp;
   vector<float> luminosity;
   vector<bool> BlackbodyColorActivation; //RGB values for blackbody color
+  vector<Vector3> BBColor;
   vector<Vector3> ColorNormalized; //normalized color values
 
   void addStar(Vector3 position, float newMass, float radius,

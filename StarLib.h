@@ -17,14 +17,18 @@ public:
   vector<Color> color;
   double epsilon_squared;
   Vector3 cameraVar;
-
-  // vector<float> temp;  temperature for later use
-  // vector<float> luminosity;
+  vector<float> temp;
+  vector<float> luminosity;
+  vector<bool> BlackbodyColorActivation; //RGB values for blackbody color
 
   void addStar(Vector3 position, float newMass, float radius,
                Vector3 velocity = Vector3{0.0, 0.0, 0.0},
-               Color newColor = YELLOW);
+               Color newColor = YELLOW, 
+               bool blackbodyColor = false, 
+               float temperature = 5778.0f, 
+               float luminosity = 1.0f);
 
+  // set the epsilon value for the star system, and set the camera position
   void epsilonValue(double epsilon,
                     Vector3 cameraNew = Vector3{800.0f, 800.0f, 800.0f});
 };
@@ -41,6 +45,7 @@ void applyGravity(star &starsObj, float dt);
 Vector3 angleConvert(double angle, float magnitude);
 
 void stableTwoStars(star &stars, float swivel, float tilt, int j, int k);
+//create a stable system of two stars, with the ability to swivel and tilt the system, and the ability to choose which two stars to use in the system
 
 void takeInput();
 
@@ -50,11 +55,15 @@ void RK4 (star &stars, float dt);
 
 void setStarShaderColor(Shader starShader, int colorLoc, Color starColor);
 
+Vector3 GetBlackbodyColorCPU(float tempK);
+
 
 
 // Declaration (extern - definition in 3bp.cpp)
 inline constexpr int stableSystemSize = 5;
 extern star stableSystemSave[stableSystemSize];
+//creating a global array of stars, stable systems to use in the main program, then going trhough each star system and adding stars to the star system in line 73 of this file
+
 inline constexpr Vector3 closeCamera = {50.0f,50.0f,50.0f};
 
 
@@ -65,8 +74,7 @@ inline constexpr Vector3 closeCamera = {50.0f,50.0f,50.0f};
 
 
 
-// Initialization function (no parameters), just saves some stable systems to
-// use
+// Initialization function (no parameters), just saves some stable systems to the global array stableSystemSave
 inline void initStableSystem() { 
   stableSystemSave[0].addStar(Vector3{500.0, 50.0, 0.0}, 100.0f, 100.0f,
                               Vector3{}, RED);

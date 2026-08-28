@@ -5,8 +5,10 @@ in vec3 fragLocalPos;
 //flat in float star_distance_to_camera;
 
 uniform vec3 u_viewPos;
-uniform vec3 u_starColor;
+uniform vec3 u_starColor;       // Color fallback / base override tint
+uniform vec3 u_blackbodyColor;  // CPU-precomputed Blackbody RGB base
 uniform float u_time;
+uniform float u_luminosity;     // HDR scale factor (e.g. 10.0)
 
 out vec4 outputColor;
 
@@ -32,11 +34,10 @@ float noise3D(vec3 p) {
     // C2 quintic curve
     vec3 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
 
-
     // Gradients and dot products at 8 corners
     float g000 = dot(hashGrad(i + vec3(0,0,0)), f - vec3(0,0,0));
     float g100 = dot(hashGrad(i + vec3(1,0,0)), f - vec3(1,0,0));
-    float g010 = dot(hashGrad(i + vec3(0,1,0)), f - vec3(0,1,0));
+    float g010 = dot(hashGrad(i + vec3(0,0,1)), f - vec3(0,1,0)); // fixed lookup index
     float g110 = dot(hashGrad(i + vec3(1,1,0)), f - vec3(1,1,0));
     float g001 = dot(hashGrad(i + vec3(0,0,1)), f - vec3(0,0,1));
     float g101 = dot(hashGrad(i + vec3(1,0,1)), f - vec3(1,0,1));
@@ -56,8 +57,8 @@ float fbm(vec3 p) {
     float freq = 1.0;
     float amp = 0.5;
 
-    for (int i =0; i < 3; i++) {
-        total += amp*noise3D(p*freq);
+    for (int i = 0; i < 5; i++) {
+        total += amp * noise3D(p * freq);
         amp *= 0.5;
         freq *= 2.0;
     }
@@ -98,7 +99,7 @@ float ridgeLoops(vec3 p) {
     float freq = 1.0;
     float amp = 0.5;
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 5; i++) {
         float n = 1.0 - abs(noise3D(p * freq));
         n = pow(n, 3.0); // Sharpen ridges
         total += n * amp;
@@ -116,6 +117,19 @@ float domainWrap(vec3 p, float time, float wrapStrength) {
     result = clamp((result / 0.6) * 0.5 + 0.5, 0.0, 1.0); // Normalize to [0,1]
 
     return result;
+}
+
+// Procedural Sunspots (Umbra & Penumbra Mask)
+float getSunspotMask(vec3 p, float time) {
+    vec3 spotPos = p * 1.8 + vec3(time * 0.01, 0.0, time * 0.005);
+    float n = fbm(spotPos);
+    
+    float penumbra = smoothstep(0.55, 0.68, n);
+    float umbra    = smoothstep(0.68, 0.78, n);
+
+    float mask = mix(1.0, 0.55, penumbra);
+    mask = mix(mask, 0.15, umbra);
+    return mask;
 }
 
 void main() {
@@ -142,11 +156,13 @@ void main() {
     float plasmaPattern = structuredBase * 0.6 + (filaments * structuredBase) * 0.7;
     plasmaPattern = clamp(plasmaPattern, 0.0, 1.0);
 
-    // COLOR PALETTE & RAMP SETUP
-    vec3 colDark  = u_starColor * 0.12; // Deep cell boundaries
-    vec3 colOrign = u_starColor;
+    // COLOR PALETTE & RAMP SETUP (Driven by CPU Blackbody Uniform u_blackbodyColor)
+    vec3 baseColor = (length(u_blackbodyColor) > 0.001) ? u_blackbodyColor : u_starColor;
 
-    vec3 maxColor = u_starColor / max(max(u_starColor.r, u_starColor.g), max(u_starColor.b, 0.001));
+    vec3 colDark  = baseColor * 0.12; // Deep cell boundaries
+    vec3 colOrign = baseColor;
+
+    vec3 maxColor = baseColor / max(max(baseColor.r, baseColor.g), max(baseColor.b, 0.001));
     vec3 colHot   = mix(colOrign, maxColor + vec3(0.4, 0.35, 0.1), 0.85);
     vec3 colPeak  = mix(maxColor * 4.0, vec3(2.2, 2.2, 2.2), 0.4);
 
@@ -154,6 +170,9 @@ void main() {
     vec3 PlasmaCol = mix(colDark, colOrign, smoothstep(0.15, 0.35, plasmaPattern));
     PlasmaCol = mix(PlasmaCol, colHot, smoothstep(0.35, 0.75, plasmaPattern));
     PlasmaCol = mix(PlasmaCol, colPeak, smoothstep(0.75, 0.98, plasmaPattern));
+
+    // Apply Sunspots (Umbra/Penumbra Suppression)
+    PlasmaCol *= getSunspotMask(fragLocalPos, u_time);
 
     // LIMB & RIM GLOW
     vec3 V = normalize(u_viewPos - fragPosition);
@@ -165,8 +184,10 @@ void main() {
     float sizeRim = 5.0; // Adjust this value to control the size of the outer atmosphere rim glow, bigger values make rim more thin and sharper, smaller values make it thicker and more diffuse
     float rim = pow(1.0 - dotV, sizeRim) * (1.0 + edgeFire * 1.8);
     // 0.6 is the rim glow intensity, you can adjust it to make the rim glow more or less intense, aka more means closer to the star color, less means closer to the hot color
-    vec3 rimGlow = mix(u_starColor, colHot, 0.6) * rim;
+    vec3 rimGlow = mix(baseColor, colHot, 0.6) * rim;
 
     vec3 finalRGB = (PlasmaCol * limb) + rimGlow;
-    outputColor = vec4(finalRGB, 1.0);
+    
+    // Output Unclipped HDR Radiance
+    outputColor = vec4(finalRGB * u_luminosity, 1.0);
 }

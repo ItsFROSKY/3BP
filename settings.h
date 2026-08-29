@@ -1,6 +1,6 @@
 #pragma once
 
-inline constexpr float simulationSpeed = 100.0f;
+inline constexpr float simulationSpeed = 10.0f;
 inline constexpr float mouseSensitivity = 0.12f;
 inline constexpr float NormalCameraSpeed = 2500.0f;
 inline constexpr float FastCameraSpeed = 7000.0f;

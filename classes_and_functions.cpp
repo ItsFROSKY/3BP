@@ -60,6 +60,7 @@ void star::addStar(Vector3 position, float newMass, float radius,
   Vector3 TempColorNormalized = {newColor.r / 255.0f, newColor.g / 255.0f, newColor.b / 255.0f};
   ColorNormalized.push_back(TempColorNormalized);
   BBColor.push_back(GetBlackbodyColorCPU(Newtemperature));
+  trail.push_back(std::deque<Vector3>{});
 }
 
 void star::epsilonValue(double epsilon, Vector3 cameraNew) {
@@ -71,24 +72,4 @@ float pairPressed(int key1, int key2) {
   return (float)IsKeyDown(key1) - (float)IsKeyDown(key2);
 }
 
-void move(Vector3 &original, Vector3 direction, float speed,
-          float dt) {
-  original.x += direction.x * speed * dt;
-  original.y += direction.y * speed * dt;
-  original.z += direction.z * speed * dt;
-}
-
-Vector3 convertVcetor3(Vector3 old) {
-  Vector3 converted;
-  converted.x = (float)old.x;
-  converted.y = (float)old.y;
-  converted.z = (float)old.z;
-  return converted;
-}
-
-void setStarShaderColor(Shader starShader, int ColorLoc, Color starColor) {
-  float RGB[3] = {starColor.r / 255.0f, starColor.g / 255.0f,
-                  starColor.b / 255.0f};
-  SetShaderValue(starShader, ColorLoc, RGB, SHADER_UNIFORM_VEC3);
-}
 

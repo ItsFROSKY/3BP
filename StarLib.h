@@ -1,6 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include <vector>
+#include <deque>
 using std::vector;
 
 Vector3 convertVcetor3(Vector3 old);
@@ -14,6 +15,10 @@ public:
   vector<Vector3> vel; // velocity
   vector<Vector3> dv;
   vector<Vector3> dp; // change in position
+  vector<std::deque<Vector3>> trail;
+  size_t maxTrailLength = 250;
+
+
   vector<Color> color;
   double epsilon_squared;
   Vector3 cameraVar;
@@ -37,25 +42,12 @@ public:
 
 float pairPressed(int key1, int key2);
 
-void move(Vector3 &original, Vector3 direction, float speed,
-          float dt);
-
-void gravity(star &starsObj, Sound &sound);
-
-void applyGravity(star &starsObj, float dt);
-
 Vector3 angleConvert(double angle, float magnitude);
 
 void stableTwoStars(star &stars, float swivel, float tilt, int j, int k);
 //create a stable system of two stars, with the ability to swivel and tilt the system, and the ability to choose which two stars to use in the system
 
-void takeInput();
-
-vector<Vector3> measureAcceleration(star &stars, vector<Vector3> tempPos, float dt, vector<Vector3> &DvTemp);
-
 void RK4 (star &stars, float dt);
-
-void setStarShaderColor(Shader starShader, int colorLoc, Color starColor);
 
 Vector3 GetBlackbodyColorCPU(float tempK);
 
@@ -111,7 +103,7 @@ inline void initStableSystem() {
                               Vector3{}, BLUE);
   stableSystemSave[3].addStar(Vector3{10.0, -30.0, 0.0}, 100.0f, 1.0f,
                               Vector3{}, RED);
-  stableSystemSave[3].addStar(Vector3{-5.0, 50.0, 20.0}, 100.0f, 1.0f,
+  stableSystemSave[3].addStar(Vector3{-5.0, 50.0, 20.0}, 400.0f, 4.0f,
                               Vector3{}, PURPLE);
   stableSystemSave[3].addStar(Vector3{-2.0, 6.0, 10.0}, 100.0f, 1.0f,
                               Vector3{}, GREEN);

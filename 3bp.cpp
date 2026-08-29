@@ -23,6 +23,7 @@ int main() {
   int screenWidth = GetScreenWidth();
   int screenHeight = GetScreenHeight();
   DisableCursor();
+  SetTargetFPS(144);
   InitAudioDevice();
   Music spaceSound = LoadMusicStream("../assest/space.mp3");
   Sound impactSound = LoadSound("../assest/impact.mp3");
@@ -32,7 +33,7 @@ int main() {
                                            // stars setup
   star starsObjInit;
   starsObjInit.epsilonValue(0.01); //idk, i think it does smth lol sry
-  star starsObj = stableSystemSave[0]; // maybe you want to run stableSystem[0],
+  star starsObj = stableSystemSave[5]; // maybe you want to run stableSystem[0],
                                        // so you change value
 
   // camera setup
@@ -64,6 +65,7 @@ Shader extractShader = LoadShader(0, "shaders/bloom/bloom_extract.frag");
 Shader blurHShader   = LoadShader(0, "shaders/bloom_blur_h.frag");
 Shader blurVShader   = LoadShader(0, "shaders/bloom_blur_v.frag");
 Shader postShader    = LoadShader(0, "shaders/post_final.frag");
+Shader flameShader = LoadShader("shaders/star_flames.vert", "shaders/star_flames.frag");
 
 int starViewPosLoc  = GetShaderLocation(starShader, "u_viewPos");
 int starTimeLoc     = GetShaderLocation(starShader, "u_time");
@@ -88,6 +90,11 @@ int blurVHeightLoc   = GetShaderLocation(blurVShader, "u_renderHeight");
 int postToneLoc      = GetShaderLocation(postShader, "u_toneMapMode");
 int postIntensityLoc = GetShaderLocation(postShader, "u_bloomIntensity");
 int postExposureLoc  = GetShaderLocation(postShader, "u_exposure");
+
+int flameViewLoc = GetShaderLocation(flameShader, "u_viewPos");
+int flameTimeLoc = GetShaderLocation(flameShader, "u_time");
+int flameColorLoc = GetShaderLocation(flameShader, "u_starColor");
+int flameLumiLoc = GetShaderLocation(flameShader, "u_luminosity");
 
     //Resolution uniforms
 float renderW = (float)screenWidth;
@@ -180,10 +187,34 @@ while (!WindowShouldClose()) {
 
   // fixed-step physics
   physicsTimer += dt_sim;
-  while (physicsTimer >= fixedDeltaTime && maxRK4steps >0) {
+  while (physicsTimer >= fixedDeltaTime) {
     RK4(starsObj, fixedDeltaTime);
     physicsTimer -= fixedDeltaTime;
+
+    //DISTANCE-BASED TRAIL UPDATE
+    for (int i = 0; i < starsObj.pos.size(); i++) {
+      if (starsObj.trail[i].empty() || Vector3Distance(starsObj.trail[i].back(), starsObj.pos[i]) > 0.001f) {
+          starsObj.trail[i].push_back(starsObj.pos[i]);
+      }
+
+      float accumulatedDistance = 0.0f;
+      int popCount = 0;
+
+      for (int j = (int)starsObj.trail[i].size() - 1; j > 0; j--) {
+          accumulatedDistance += Vector3Distance(starsObj.trail[i][j], starsObj.trail[i][j - 1]);
+          if (accumulatedDistance > TARGET_TRAIL_LENGTH) {
+              popCount = j;
+              break;
+          }
+      }
+
+      while (popCount > 0 && !starsObj.trail[i].empty()) {
+          starsObj.trail[i].pop_front();
+          popCount--;
+      }
+    }
   }
+
 
 
 
@@ -199,6 +230,43 @@ while (!WindowShouldClose()) {
 
   BeginMode3D(camera);
 
+
+
+
+
+rlDisableDepthMask();
+BeginBlendMode(BLEND_ADDITIVE);
+
+for (int i = 0; i < starsObj.pos.size(); i++) {
+    int trailSize = starsObj.trail[i].size();
+    if (trailSize < 2) 
+    continue;
+
+    Vector3 rawColor = starsObj.BlackbodyColorActivation[i] ? starsObj.BBColor[i] : starsObj.ColorNormalized[i];
+    Color starBaseColor = Color{
+        (unsigned char)Clamp(rawColor.x * 255.0f, 0.0f, 255.0f),
+        (unsigned char)Clamp(rawColor.y * 255.0f, 0.0f, 255.0f),
+        (unsigned char)Clamp(rawColor.z * 255.0f, 0.0f, 255.0f),
+        255
+    }; //just making it into a normall color, clamp make sure its not more than 255
+
+    float currentDist = 0.0f;
+    for (int j = 1; j < trailSize; j++) {
+        currentDist += Vector3Distance(starsObj.trail[i][j - 1], starsObj.trail[i][j]);
+        
+        // 0.0 at oldest point (tail tip) -> 1.0 at current star position (head)
+        float progress = Clamp(currentDist / TARGET_TRAIL_LENGTH, 0.0f, 1.0f); 
+        Color segmentColor = ColorAlpha(starBaseColor, progress * progress * 0.7f);
+        
+        DrawLine3D(starsObj.trail[i][j - 1], starsObj.trail[i][j], segmentColor);
+    }
+}
+
+EndBlendMode();
+rlEnableDepthMask();
+
+
+
   if (drawGridBool) //a bool for drawings white grid lines
   DrawGrid(64, 500.0f);
 
@@ -210,6 +278,10 @@ while (!WindowShouldClose()) {
       else bbColor = starsObj.ColorNormalized[i];
       
     float luminosity = starsObj.luminosity[i];
+
+    //set falmes uniforms
+    SetShaderValue(flameShader, flameViewLoc, &camera.position, SHADER_UNIFORM_VEC3);
+    SetShaderValue(flameShader, flameTimeLoc, &ShadertTime, SHADER_UNIFORM_FLOAT);
 
     // Set Photosphere Uniforms
     int useBB = (int)starsObj.BlackbodyColorActivation[i];

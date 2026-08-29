@@ -35,12 +35,12 @@ const float STAR_GLOBAL_BRIGHTNESS=1.80;
 
 // Size bounds for stars (fraction of grid cell)
 const float STAR_MIN_RADIUS=.04;
-const float STAR_MAX_RADIUS=.28;
-const float STAR_SIZE_DISTRIBUTION=3.5;// Higher values bias generation toward tiny stars
+const float STAR_MAX_RADIUS=.15;
+const float STAR_SIZE_DISTRIBUTION=2.5;// Higher values bias generation toward tiny stars
 
 // Asynchronous Pulsation (Twinkle)
-const float STAR_PULSE_AMPLITUDE=.35;// Depth of light modulation (0.0 = static, 0.5 = 50% brightness shift)
-const float STAR_PULSE_SPEED=1.60;// Base pulse frequency multiplier
+const float STAR_PULSE_AMPLITUDE=.65;// Depth of light modulation (0.0 = static, 0.5 = 50% brightness shift)
+const float STAR_PULSE_SPEED=1.6;// Base pulse frequency multiplier
 
 // ============================================================================
 // 3. CYAN & PURPLE NEBULA GAS CLOUD SETTINGS
@@ -49,14 +49,14 @@ const float STAR_PULSE_SPEED=1.60;// Base pulse frequency multiplier
 // Purple/Magenta Cosmic Cloud Settings
 const float NEBULA_PURPLE_INTENSITY=.04;// Overall opacity/brightness of purple gas
 const float NEBULA_PURPLE_SCALE=3.30;// Noise frequency (lower = larger broad cloud structures)
-const float NEBULA_PURPLE_THRESHOLD=.5;// Density cutoff (higher = less sky coverage, sharper clouds)
+const float NEBULA_PURPLE_THRESHOLD=.51;// Density cutoff (higher = less sky coverage, sharper clouds)
 const vec3 COLOR_PURPLE_BODY=vec3(.18,.02,.35);// Deep space violet core color
 const vec3 COLOR_MAGENTA_HIGHLIGHT=vec3(.65,.08,.55);// Luminous magenta wisp color
 
 // Cyan Ionized Fog Settings
 const float NEBULA_CYAN_INTENSITY=.04;// Overall opacity/brightness of cyan fog
-const float NEBULA_CYAN_SCALE=1.70;// Noise frequency for cyan gas
-const float NEBULA_CYAN_THRESHOLD=.5;// Density cutoff for cyan fog
+const float NEBULA_CYAN_SCALE=2.2;// Noise frequency for cyan gas
+const float NEBULA_CYAN_THRESHOLD=.51;// Density cutoff for cyan fog
 const vec3 COLOR_CYAN_BODY=vec3(0.,.38,.58);// Deep cyan gas color
 const vec3 COLOR_CYAN_HIGHLIGHT=vec3(.08,.82,.92);// Electric teal highlight color
 
@@ -66,8 +66,8 @@ const vec3 COLOR_CYAN_HIGHLIGHT=vec3(.08,.82,.92);// Electric teal highlight col
 
 // Spatial distribution grid for galaxies across the sky sphere
 const float GALAXY_GRID_DENSITY=1.2;// Higher = more spatial sectors dividing the sky
-const float GALAXY_SPAWN_CHANCE=.5;// Probability of a sector spawning a galaxy (0.0 to 1.0)
-const float GALAXY_GLOBAL_BRIGHTNESS=.06;// Master intensity multiplier for all galaxies
+const float GALAXY_SPAWN_CHANCE=.4;// Probability of a sector spawning a galaxy (0.0 to 1.0)
+const float GALAXY_GLOBAL_BRIGHTNESS=.04;// Master intensity multiplier for all galaxies
 
 // Spawn Weights (Equalized at 0.20 to guarantee balanced distribution across all types)
 const float WEIGHT_TYPE_SPIRAL=.145;// Type 0: Grand Design Spiral
@@ -78,12 +78,12 @@ const float WEIGHT_TYPE_IRREGULAR=.25;// Type 4: Irregular Dwarf Galaxy
 
 // Min and Max size bounds for galaxy sectors (randomized per instance)
 const float GALAXY_MIN_RADIUS_SCALE=.0060;// Smallest galaxy disk scale
-const float GALAXY_MAX_RADIUS_SCALE=.0180;// Largest galaxy disk scale
-const float GALAXY_SIZE_BIAS_CURVE=3.5;// Size distribution curve
+const float GALAXY_MAX_RADIUS_SCALE=.0250;// Largest galaxy disk scale
+const float GALAXY_SIZE_BIAS_CURVE=4.;// Size distribution curve
 
 // Detailed Morphotype Parameters
 const float SPIRAL_KNOT_BRIGHTNESS=1.40;// HII star-forming region intensity in spiral arms
-const float BARRED_BAR_LENGTH=.42;// Center bar length for barred spirals
+const float BARRED_BAR_LENGTH=.27;// Center bar length for barred spirals
 const float ELLIPTICAL_CORE_FALLOFF=3.80;// Radial sharpness of elliptical galaxies
 const float RING_CORE_SIZE=.60;// Radius of outer ring in ring galaxies
 const float IRREGULAR_CHAOS_FREQ=3.20;// Structural distortion frequency for irregular galaxies
@@ -160,7 +160,7 @@ float noise3D(vec3 p){
     
     vec3 computeNebulae(vec3 rayDir){
         // 1. Purple Gas Pass
-        vec3 pPurp=rayDir*NEBULA_PURPLE_SCALE+vec3(142.3,u_time*.0015,-87.1);
+        vec3 pPurp=rayDir*NEBULA_PURPLE_SCALE+vec3(142.3,u_time*.010,-87.1);
         vec3 qPurp=vec3(fbm(pPurp),fbm(pPurp+vec3(3.1,8.2,1.4)),fbm(pPurp+vec3(7.2,1.1,4.3)));
         float rawPurp=fbm(pPurp+1.8*qPurp)*.5+.5;
         
@@ -168,7 +168,7 @@ float noise3D(vec3 p){
         vec3 purpleGas=mix(COLOR_PURPLE_BODY,COLOR_MAGENTA_HIGHLIGHT,pow(cloudPurp,1.5))*cloudPurp*NEBULA_PURPLE_INTENSITY;
         
         // 2. Cyan Fog Pass
-        vec3 pCyan=rayDir*NEBULA_CYAN_SCALE+vec3(-91.5,u_time*.002,43.8);
+        vec3 pCyan=rayDir*NEBULA_CYAN_SCALE+vec3(-91.5,u_time*.010,43.8);
         vec3 qCyan=vec3(fbm(pCyan),fbm(pCyan+vec3(5.2,1.3,2.8)),fbm(pCyan+vec3(1.7,9.2,3.4)));
         float rawCyan=fbm(pCyan+1.8*qCyan)*.5+.5;
         

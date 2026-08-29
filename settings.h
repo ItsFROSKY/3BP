@@ -9,11 +9,12 @@ const int screenHeight = 1000;
 
 inline constexpr float simulationSpeed = 1.0f;
 inline constexpr float mouseSensitivity = 0.12f;
-inline constexpr float NormalCameraSpeed = 1.0f;
+inline constexpr float NormalCameraSpeed = 900.0f;
+inline constexpr float FastCameraSpeed = 900.0f;
 inline constexpr float swirlFactor = 2.0f; // the swirl factor for the shader, how much it swirls
+inline constexpr float maxRK4steps = 10.0;
 
-inline constexpr float fixedDeltaTime =
-    0.00833f; // 120 checks per sec, 1/120 = 0.00833
+inline constexpr float fixedDeltaTime = 0.00833f; // 120 checks per sec, 1/120 = 0.00833
 // vector3 (x ,z aka hieght, y)
 
 inline constexpr float G = 200.0f;        // normalize the G value

@@ -102,6 +102,27 @@ RenderTexture2D hdrTarget = LoadRenderTexture(screenWidth, screenHeight);
 RenderTexture2D bloomPing = LoadRenderTexture(screenWidth, screenHeight);
 RenderTexture2D bloomPong = LoadRenderTexture(screenWidth, screenHeight);
 
+// Create a render texture buffer specifically to store the pre-computed sky
+RenderTexture2D skyTarget = LoadRenderTexture(screenWidth, screenHeight);
+
+// --- BAKE SKY ONCE AT STARTUP ---
+BeginTextureMode(skyTarget);
+ClearBackground(BLACK);
+BeginShaderMode(skyShader);
+Vector3 defaultCamDir = { 0.0f, 0.0f, -1.0f };
+float initialTime = 0.0f;
+
+SetShaderValue(skyShader, skyResLoc, &resVec, SHADER_UNIFORM_VEC2);
+SetShaderValue(skyShader, skyCamDirLoc, &defaultCamDir, SHADER_UNIFORM_VEC3);
+SetShaderValue(skyShader, skyTimeLoc, &initialTime, SHADER_UNIFORM_FLOAT);
+
+//executes all only here
+DrawRectangle(0, 0, screenWidth, screenHeight, WHITE);
+EndShaderMode();
+EndTextureMode();
+
+UnloadShader(skyShader);
+
 SetShaderValue(postShader, GetShaderLocation(postShader, "u_toneMapMode"), &toneMapMode, SHADER_UNIFORM_INT);
 SetShaderValue(postShader, GetShaderLocation(postShader, "u_bloomIntensity"), &bloomIntensity, SHADER_UNIFORM_FLOAT);
 SetShaderValue(postShader, GetShaderLocation(postShader, "u_exposure"), &exposure, SHADER_UNIFORM_FLOAT);
@@ -110,12 +131,14 @@ SetShaderValue(postShader, GetShaderLocation(postShader, "u_exposure"), &exposur
 
 
 
-   // Fetch Uniform Locations
+  // Fetch Uniform Locations
   int ViewLoc = GetShaderLocation(starShader, "u_viewPos");
   int ColorLoc = GetShaderLocation(starShader, "u_starColor");
   int timeLoc      = GetShaderLocation(starShader, "u_time");
   
   starModel.materials[0].shader = starShader;
+
+  RenderTexture2D bakedSky = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 
   
 
@@ -124,31 +147,29 @@ SetShaderValue(postShader, GetShaderLocation(postShader, "u_exposure"), &exposur
   while (!WindowShouldClose()) {
 
     UpdateMusicStream(spaceSound); // to run  the music
+    float dt = GetFrameTime();
+    if (dt > 0.1f) 
+    dt = 0.1;
 
     // input and movement for camera
-    Vector3 cameradirection = Vector3{pairPressed(KEY_W, KEY_S) * cameraSpeed,
-                                      pairPressed(KEY_D, KEY_A) * cameraSpeed,
-                                      pairPressed(KEY_Q, KEY_E) * cameraSpeed};
+    Vector3 cameradirection = Vector3{pairPressed(KEY_W, KEY_S) * (cameraSpeed *dt),
+                                      pairPressed(KEY_D, KEY_A) * (cameraSpeed *dt),
+                                      pairPressed(KEY_Q, KEY_E) * (cameraSpeed *dt)};
     Vector2 mouseDelta = GetMouseDelta();
     Vector3 rotation = {mouseDelta.x * mouseSensitivity,
                         mouseDelta.y * mouseSensitivity, 0.0f};
 
     float time = (float)GetTime();
 
-SetShaderValue(skyShader, timeLoc, &time,SHADER_UNIFORM_FLOAT
-);
-
-Vector2 resolution = {(float)GetScreenWidth(), (float)GetScreenHeight()};
-
-SetShaderValue(skyShader, skyResLoc, &resolution,SHADER_UNIFORM_VEC2);
+    Vector2 resolution = {(float)GetScreenWidth(), (float)GetScreenHeight()};
 
     if (IsKeyDown(KEY_LEFT_SHIFT))
-      cameraSpeed = 6.0f;
+      cameraSpeed = FastCameraSpeed;
     else
       cameraSpeed = NormalCameraSpeed;
 
     // update loop
-    float dt = GetFrameTime() * simulationSpeed;
+    float dt_sim = dt* simulationSpeed;
     UpdateCameraPro(&camera, cameradirection, rotation, 0.0f);
     Vector3 camDir = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
     SetShaderValue(skyShader, GetShaderLocation(skyShader, "u_cameraDir"), &camDir, SHADER_UNIFORM_VEC3);
@@ -159,7 +180,7 @@ SetShaderValue(skyShader, skyResLoc, &resolution,SHADER_UNIFORM_VEC2);
 
     // Update Global Uniforms
     Vector3 camForward = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
-    float floatCurrentTime = swirlFactor * (float)GetTime();
+    float floatCurrentTime = swirlFactor * time;
     float ShadertTime = fmodf(floatCurrentTime, 1000.0f);
     SetShaderValue(starShader, timeLoc, &ShadertTime, SHADER_UNIFORM_FLOAT);
     SetShaderValue(starShader, ViewLoc, &camera.position, SHADER_UNIFORM_VEC3);
@@ -174,8 +195,8 @@ SetShaderValue(skyShader, skyResLoc, &resolution,SHADER_UNIFORM_VEC2);
     }
 
     // fixed-step physics
-    physicsTimer += dt;
-    while (physicsTimer >= fixedDeltaTime) {
+    physicsTimer += dt_sim;
+    while (physicsTimer >= fixedDeltaTime && maxRK4steps >0) {
       RK4(starsObj, fixedDeltaTime);
       physicsTimer -= fixedDeltaTime;
     }
@@ -276,7 +297,7 @@ BeginDrawing();
   }
 
   //unload and close
-  /*
+  //
   UnloadRenderTexture(hdrTarget);
   UnloadRenderTexture(bloomPing);
   UnloadRenderTexture(bloomPong);
@@ -294,7 +315,7 @@ BeginDrawing();
   UnloadMesh(starMesh);
 
   UnloadMusicStream(spaceSound);
-  UnloadSound(impactSound); */
+  UnloadSound(impactSound); 
   CloseAudioDevice();
   CloseWindow();
   return 0;

@@ -150,7 +150,7 @@ void main(){
         
         vec3 maxColor=baseColor/max(max(baseColor.r,baseColor.g),max(baseColor.b,.001));
         colHot=mix(colOrign,maxColor+vec3(.4,.35,.1),.85);// Thermal red offset
-        colPeak=mix(maxColor*4.,vec3(2.2,2.2,2.2),.4);
+        colPeak=mix(maxColor*4.,vec3(2.2,2.2,2.2),.6);
         
         // Blend plasma layers
         PlasmaCol=mix(colDark,colOrign,smoothstep(.25,.4,plasmaPattern));

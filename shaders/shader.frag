@@ -145,16 +145,17 @@ void main(){
     if(u_useBlackbody==1){
         // --- MODE 1: PHYSICAL BLACKBODY RAMP ---
         baseColor=u_blackbodyColor;
-        colDark=baseColor*.05;
-        colOrign=baseColor;
         
-        vec3 maxColor=baseColor/max(max(baseColor.r,baseColor.g),max(baseColor.b,.001));
-        colHot=mix(colOrign,maxColor+vec3(.4,.35,.1),.85);// Thermal red offset
-        colPeak=mix(maxColor*4.,vec3(2.2,2.2,2.2),.6);
+        // Dark plasma valleys
+        vec3 baseColorTemp=baseColor*1.;
+        colOrign=baseColorTemp;
+        colDark=baseColorTemp*.15;
         
+        // Hot granules boost intensity of the EXACT blackbody hue
+        colHot=baseColorTemp*1.2;
         // Blend plasma layers
-        PlasmaCol=mix(colDark,colOrign,smoothstep(.25,.4,plasmaPattern));
-        PlasmaCol=mix(PlasmaCol,colHot,smoothstep(.4,.75,plasmaPattern));
+        PlasmaCol=mix(colDark,colOrign,smoothstep(.15,.35,plasmaPattern));
+        PlasmaCol=mix(PlasmaCol,colHot,smoothstep(.35,.75,plasmaPattern));
         PlasmaCol=mix(PlasmaCol,colPeak,smoothstep(.75,.98,plasmaPattern));
     }
     
@@ -165,7 +166,7 @@ void main(){
         colOrign=baseColor;
         
         vec3 maxColor=baseColor/max(max(baseColor.r,baseColor.g),max(baseColor.b,.001));
-        colHot=mix(colOrign,maxColor*1.25,.75);// Preserves base hue without red shift
+        colHot=mix(colOrign,maxColor*1,.5);// Preserves base hue without red shift
         colPeak=mix(colHot*1.6,vec3(1.1),.25);// Gentle peak to prevent yellow blowout
         
         // Blend plasma layers

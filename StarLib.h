@@ -62,7 +62,7 @@ Vector3 GetBlackbodyColorCPU(float tempK);
 
 
 // Declaration (extern - definition in 3bp.cpp)
-inline constexpr int stableSystemSize = 5;
+inline constexpr int stableSystemSize = 6;
 extern star stableSystemSave[stableSystemSize];
 //creating a global array of stars, stable systems to use in the main program, then going trhough each star system and adding stars to the star system in line 73 of this file
 
@@ -79,7 +79,7 @@ inline constexpr Vector3 closeCamera = {50.0f,50.0f,50.0f};
 // Initialization function (no parameters), just saves some stable systems to the global array stableSystemSave
 inline void initStableSystem() { 
   stableSystemSave[0].addStar(Vector3{500.0, 50.0, 0.0}, 100.0f, 100.0f,
-                              Vector3{}, RED, true, 5778.0);
+                              Vector3{}, RED, true, 0.05f*1000.0f, 2.5);
   stableSystemSave[0].addStar(Vector3{-100, 200.0, -100.0}, 0.5f, 20.0f,
                               Vector3{0.01, -0.01, 5.0}, YELLOW);
   stableSystemSave[0].addStar(Vector3{1100, -200.0, 100.0}, 0.25f, 20.0f,
@@ -117,6 +117,8 @@ inline void initStableSystem() {
                               Vector3{}, GREEN);
   stableSystemSave[3].epsilonValue(20.0, Vector3{80.0f,80.0f,80.0f});
 
+
+
   stableSystemSave[4].addStar(Vector3{10.0, 60.0, 5.0}, 100.0f, 1.0f,
                               Vector3{});
   stableSystemSave[4].addStar(Vector3{200.0, -10.0, -10.0}, 100.0f, 1.0f,
@@ -128,4 +130,15 @@ inline void initStableSystem() {
   stableSystemSave[4].addStar(Vector3{-60.0, 6.0, 10.0}, 100.0f, 1.0f,
                               Vector3{}, GREEN);
   stableSystemSave[4].epsilonValue(10000.0, Vector3{2.0f,130.0f,400.0f});
+
+
+
+  stableSystemSave[5].addStar(Vector3{500.0, 50.0, 0.0}, 100.0f, 100.0f,
+                              Vector3{}, RED, true, 0.1f*1000.0f, 2.5);
+  stableSystemSave[5].addStar(Vector3{-100, 200.0, -100.0}, 0.5f, 20.0f,
+                              Vector3{0.01, -0.01, 5.0}, YELLOW);
+  stableSystemSave[5].addStar(Vector3{1100, -200.0, 100.0}, 0.25f, 20.0f,
+                              Vector3{-0.01, 0.01, -5.0}, BLUE);
+ 
+  stableSystemSave[5].epsilonValue(0.1f, closeCamera);
 }

@@ -65,21 +65,21 @@ const vec3 COLOR_CYAN_HIGHLIGHT=vec3(.08,.82,.92);// Electric teal highlight col
 // ============================================================================
 
 // Spatial distribution grid for galaxies across the sky sphere
-const float GALAXY_GRID_DENSITY=1.20;// Higher = more spatial sectors dividing the sky
-const float GALAXY_SPAWN_CHANCE=.7;// Probability of a sector spawning a galaxy (0.0 to 1.0)
+const float GALAXY_GRID_DENSITY=1.2;// Higher = more spatial sectors dividing the sky
+const float GALAXY_SPAWN_CHANCE=.5;// Probability of a sector spawning a galaxy (0.0 to 1.0)
 const float GALAXY_GLOBAL_BRIGHTNESS=.06;// Master intensity multiplier for all galaxies
 
 // Spawn Weights (Equalized at 0.20 to guarantee balanced distribution across all types)
-const float WEIGHT_TYPE_SPIRAL=.20;// Type 0: Grand Design Spiral
-const float WEIGHT_TYPE_BARRED=.20;// Type 1: Barred Spiral
-const float WEIGHT_TYPE_ELLIPTICAL=.20;// Type 2: Smooth Elliptical
-const float WEIGHT_TYPE_RING=.20;// Type 3: Ring / Lenticular
-const float WEIGHT_TYPE_IRREGULAR=.20;// Type 4: Irregular Dwarf Galaxy
+const float WEIGHT_TYPE_SPIRAL=.145;// Type 0: Grand Design Spiral
+const float WEIGHT_TYPE_BARRED=.145;// Type 1: Barred Spiral
+const float WEIGHT_TYPE_ELLIPTICAL=.25;// Type 2: Smooth Elliptical
+const float WEIGHT_TYPE_RING=.21;// Type 3: Ring / Lenticular
+const float WEIGHT_TYPE_IRREGULAR=.25;// Type 4: Irregular Dwarf Galaxy
 
 // Min and Max size bounds for galaxy sectors (randomized per instance)
-const float GALAXY_MIN_RADIUS_SCALE=.001;// Smallest galaxy disk scale
-const float GALAXY_MAX_RADIUS_SCALE=.02;// Largest galaxy disk scale
-const float GALAXY_SIZE_BIAS_CURVE=1.50;// Size distribution curve
+const float GALAXY_MIN_RADIUS_SCALE=.0060;// Smallest galaxy disk scale
+const float GALAXY_MAX_RADIUS_SCALE=.0180;// Largest galaxy disk scale
+const float GALAXY_SIZE_BIAS_CURVE=3.5;// Size distribution curve
 
 // Detailed Morphotype Parameters
 const float SPIRAL_KNOT_BRIGHTNESS=1.40;// HII star-forming region intensity in spiral arms
@@ -308,9 +308,9 @@ float noise3D(vec3 p){
         vec3 galaxyLight=vec3(0.);
         vec3 cell=floor(rayDir*GALAXY_GRID_DENSITY);
         
-        for(int z=-2;z<=2;z++){
-            for(int y=-2;y<=2;y++){
-                for(int x=-2;x<=2;x++){
+        for(int z=-3;z<3;z++){
+            for(int y=-3;y<=3;y++){
+                for(int x=-3;x<=3;x++){
                     vec3 neighborCell=cell+vec3(float(x),float(y),float(z));
                     vec3 cellHash=hash33(neighborCell);
                     

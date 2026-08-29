@@ -2,26 +2,46 @@
 #include "cmath"
 
 Vector3 GetBlackbodyColorCPU(float tempK) {
-  float t = tempK / 1000.0f;
-  if (t < 1.0f) t = 1.0f;
-  if (t > 40.0f) t = 40.0f;
+    // Clamp temperature to valid range (1000K to 40000K) and scale by 100
+    float temp = std::fmax(1000.0f, std::fmin(tempK, 40000.0f)) / 100.0f;
 
-  float r = 0.0f, g = 0.0f, b = 0.0f;
-  if (t <= 6.6f) r = 1.0f;
-  else r = 1.292936f * std::pow(t - 6.0f, -0.1332047f);
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
 
-  if (t <= 6.6f) g = 0.39008157f * std::log(t) - 0.63184144f;
-  else g = 1.12989086f * std::pow(t - 6.0f, -0.0755148f);
+    //Red Channel
+    if (temp <= 66.0f) {
+        r = 255.0f;
+    } else {
+        r = temp - 60.0f;
+        r = 329.698727446f * std::pow(r, -0.1332047592f);
+    }
 
-  if (t >= 6.6f) b = 1.0f;
-  else if (t <= 1.9f) b = 0.0f;
-  else b = 0.54320678f * std::log(t - 1.0f) - 1.19625408f;
+    //Green Channel
+    if (temp <= 66.0f) {
+        g = temp;
+        g = 99.4708025861f * std::log(g) - 161.1195681661f;
+    } else {
+        g = temp - 60.0f;
+        g = 288.1221695283f * std::pow(g, -0.0755148492f);
+    }
 
-  return (Vector3){
-      std::fmax(0.0f, std::fmin(r, 3.0f)),
-      std::fmax(0.0f, std::fmin(g, 3.0f)),
-      std::fmax(0.0f, std::fmin(b, 3.0f))
-  };
+    //Blue Channel
+    if (temp >= 66.0f) {
+        b = 255.0f;
+    } else if (temp <= 19.0f) {
+        b = 0.0f;
+    } else {
+        b = temp - 10.0f;
+        b = 138.5177312231f * std::log(b) - 305.0447927307f;
+    }
+
+    // Normalize 0..255 to 0.0..1.0 float RGB
+    return (Vector3){
+        std::fmax(0.0f, std::fmin(r / 255.0f, 1.0f)),
+        std::fmax(0.0f, std::fmin(g / 255.0f, 1.0f)),
+        std::fmax(0.0f, std::fmin(b / 255.0f, 1.0f))
+    };
 }
 
 void star::addStar(Vector3 position, float newMass, float radius,

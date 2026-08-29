@@ -17,7 +17,12 @@ extern "C" {
 
 
 int main() {
-  InitWindow(screenWidth, screenHeight, "3 Body problem");
+
+  SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_BORDERLESS_WINDOWED_MODE);
+  InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "3 Body problem");
+  int screenWidth = GetScreenWidth();
+  int screenHeight = GetScreenHeight();
+  DisableCursor();
   InitAudioDevice();
   Music spaceSound = LoadMusicStream("../assest/space.mp3");
   Sound impactSound = LoadSound("../assest/impact.mp3");
@@ -102,27 +107,6 @@ RenderTexture2D hdrTarget = LoadRenderTexture(screenWidth, screenHeight);
 RenderTexture2D bloomPing = LoadRenderTexture(screenWidth, screenHeight);
 RenderTexture2D bloomPong = LoadRenderTexture(screenWidth, screenHeight);
 
-// Create a render texture buffer specifically to store the pre-computed sky
-RenderTexture2D skyTarget = LoadRenderTexture(screenWidth, screenHeight);
-
-// --- BAKE SKY ONCE AT STARTUP ---
-BeginTextureMode(skyTarget);
-ClearBackground(BLACK);
-BeginShaderMode(skyShader);
-Vector3 defaultCamDir = { 0.0f, 0.0f, -1.0f };
-float initialTime = 0.0f;
-
-SetShaderValue(skyShader, skyResLoc, &resVec, SHADER_UNIFORM_VEC2);
-SetShaderValue(skyShader, skyCamDirLoc, &defaultCamDir, SHADER_UNIFORM_VEC3);
-SetShaderValue(skyShader, skyTimeLoc, &initialTime, SHADER_UNIFORM_FLOAT);
-
-//executes all only here
-DrawRectangle(0, 0, screenWidth, screenHeight, WHITE);
-EndShaderMode();
-EndTextureMode();
-
-UnloadShader(skyShader);
-
 SetShaderValue(postShader, GetShaderLocation(postShader, "u_toneMapMode"), &toneMapMode, SHADER_UNIFORM_INT);
 SetShaderValue(postShader, GetShaderLocation(postShader, "u_bloomIntensity"), &bloomIntensity, SHADER_UNIFORM_FLOAT);
 SetShaderValue(postShader, GetShaderLocation(postShader, "u_exposure"), &exposure, SHADER_UNIFORM_FLOAT);
@@ -131,149 +115,152 @@ SetShaderValue(postShader, GetShaderLocation(postShader, "u_exposure"), &exposur
 
 
 
-  // Fetch Uniform Locations
-  int ViewLoc = GetShaderLocation(starShader, "u_viewPos");
-  int ColorLoc = GetShaderLocation(starShader, "u_starColor");
-  int timeLoc      = GetShaderLocation(starShader, "u_time");
-  
-  starModel.materials[0].shader = starShader;
+// Fetch Uniform Locations
+int ViewLoc = GetShaderLocation(starShader, "u_viewPos");
+int ColorLoc = GetShaderLocation(starShader, "u_starColor");
+int timeLoc      = GetShaderLocation(starShader, "u_time");
 
-  RenderTexture2D bakedSky = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
-
-  
-
-  // gameloop
-
-  while (!WindowShouldClose()) {
-
-    UpdateMusicStream(spaceSound); // to run  the music
-    float dt = GetFrameTime();
-    if (dt > 0.1f) 
-    dt = 0.1;
-
-    // input and movement for camera
-    Vector3 cameradirection = Vector3{pairPressed(KEY_W, KEY_S) * (cameraSpeed *dt),
-                                      pairPressed(KEY_D, KEY_A) * (cameraSpeed *dt),
-                                      pairPressed(KEY_Q, KEY_E) * (cameraSpeed *dt)};
-    Vector2 mouseDelta = GetMouseDelta();
-    Vector3 rotation = {mouseDelta.x * mouseSensitivity,
-                        mouseDelta.y * mouseSensitivity, 0.0f};
-
-    float time = (float)GetTime();
-
-    Vector2 resolution = {(float)GetScreenWidth(), (float)GetScreenHeight()};
-
-    if (IsKeyDown(KEY_LEFT_SHIFT))
-      cameraSpeed = FastCameraSpeed;
-    else
-      cameraSpeed = NormalCameraSpeed;
-
-    // update loop
-    float dt_sim = dt* simulationSpeed;
-    UpdateCameraPro(&camera, cameradirection, rotation, 0.0f);
-    Vector3 camDir = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
-    SetShaderValue(skyShader, GetShaderLocation(skyShader, "u_cameraDir"), &camDir, SHADER_UNIFORM_VEC3);
-    if (IsKeyPressed(KEY_F)) {
-      camera.target = Vector3{0.0f, 0.0f, 0.0f};
-    }
-
-
-    // Update Global Uniforms
-    Vector3 camForward = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
-    float floatCurrentTime = swirlFactor * time;
-    float ShadertTime = fmodf(floatCurrentTime, 1000.0f);
-    SetShaderValue(starShader, timeLoc, &ShadertTime, SHADER_UNIFORM_FLOAT);
-    SetShaderValue(starShader, ViewLoc, &camera.position, SHADER_UNIFORM_VEC3);
-
-    SetShaderValue(skyShader, skyCamDirLoc, &camForward, SHADER_UNIFORM_VEC3);
-    SetShaderValue(skyShader, skyTimeLoc, &ShadertTime, SHADER_UNIFORM_FLOAT);
-    // update the shader giving it the camera position
-
-    // music, to replay music when it stops
-    if (!IsMusicStreamPlaying(spaceSound)) {
-      PlayMusicStream(spaceSound);
-    }
-
-    // fixed-step physics
-    physicsTimer += dt_sim;
-    while (physicsTimer >= fixedDeltaTime && maxRK4steps >0) {
-      RK4(starsObj, fixedDeltaTime);
-      physicsTimer -= fixedDeltaTime;
-    }
+starModel.materials[0].shader = starShader;
 
 
 
-    // the draw loop
-    BeginDrawing();
-    BeginTextureMode(hdrTarget);
-    ClearBackground(BLACK);
+// gameloop
 
-    // 2D Fullscreen Procedural Sky (Replaces ClearBackground color)
-    BeginShaderMode(skyShader);
-    DrawRectangle(0, 0, screenWidth, screenHeight, WHITE);
-    EndShaderMode();
+while (!WindowShouldClose()) {
 
-    BeginMode3D(camera);
-    DrawGrid(64, 500.0f);
-    for (int i = 0; i < starsObj.pos.size(); i++) {
-      Vector3 bbColor;
-      if(starsObj.BlackbodyColorActivation[i])
-       bbColor = starsObj.BBColor[i];
+  UpdateMusicStream(spaceSound); // to run  the music
+  float dt = (float)GetFrameTime();
 
-       else bbColor = starsObj.ColorNormalized[i];
-       
-      float luminosity = starsObj.luminosity[i];
+  // input and movement for camera
+  if (IsKeyDown(KEY_LEFT_SHIFT))
+    cameraSpeed = FastCameraSpeed;
+  else
+    cameraSpeed = NormalCameraSpeed;
 
-      // Set Photosphere Uniforms
-      int useBB = (int)starsObj.BlackbodyColorActivation[i];
-      SetShaderValue(starShader, starUseBbLoc, &useBB, SHADER_UNIFORM_INT);
-      SetShaderValue(starShader, starBbLoc, &bbColor, SHADER_UNIFORM_VEC3);
-      SetShaderValue(starShader, starLumiLoc, &luminosity, SHADER_UNIFORM_FLOAT);
+  Vector3 cameradirection = Vector3{pairPressed(KEY_W, KEY_S) * (cameraSpeed *dt),
+                                    pairPressed(KEY_D, KEY_A) * (cameraSpeed *dt),
+                                    pairPressed(KEY_Q, KEY_E) * (cameraSpeed *dt)};
+  Vector2 mouseDelta = GetMouseDelta();
+  Vector3 rotation = {mouseDelta.x * mouseSensitivity,
+                      mouseDelta.y * mouseSensitivity, 0.0f};
+
+  float time = (float)GetTime();
+
+  SetShaderValue(skyShader, timeLoc, &time,SHADER_UNIFORM_FLOAT);
+
+  Vector2 resolution = {(float)GetScreenWidth(), (float)GetScreenHeight()};
+
+  SetShaderValue(skyShader, skyResLoc, &resolution,SHADER_UNIFORM_VEC2);
+
+  // update loop
+  float dt_sim = dt* simulationSpeed;
+  UpdateCameraPro(&camera, cameradirection, rotation, 0.0f);
+  Vector3 camDir = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
+  SetShaderValue(skyShader, GetShaderLocation(skyShader, "u_cameraDir"), &camDir, SHADER_UNIFORM_VEC3);
+  if (IsKeyPressed(KEY_F)) {
+    camera.target = Vector3{0.0f, 0.0f, 0.0f};
+  }
+
+
+  // Update Global Uniforms
+  Vector3 camForward = Vector3Normalize(Vector3Subtract(camera.target, camera.position));
+  float floatCurrentTime = swirlFactor * time;
+  float ShadertTime = fmodf(floatCurrentTime, 1000.0f);
+  SetShaderValue(starShader, timeLoc, &ShadertTime, SHADER_UNIFORM_FLOAT);
+  SetShaderValue(starShader, ViewLoc, &camera.position, SHADER_UNIFORM_VEC3);
+
+  SetShaderValue(skyShader, skyCamDirLoc, &camForward, SHADER_UNIFORM_VEC3);
+  SetShaderValue(skyShader, skyTimeLoc, &ShadertTime, SHADER_UNIFORM_FLOAT);
+  // update the shader giving it the camera position
+
+  // music, to replay music when it stops
+  if (!IsMusicStreamPlaying(spaceSound)) {
+    PlayMusicStream(spaceSound);
+  }
+
+  // fixed-step physics
+  physicsTimer += dt_sim;
+  while (physicsTimer >= fixedDeltaTime && maxRK4steps >0) {
+    RK4(starsObj, fixedDeltaTime);
+    physicsTimer -= fixedDeltaTime;
+  }
+
+
+
+  // the draw loop
+  BeginDrawing();
+  BeginTextureMode(hdrTarget);
+  ClearBackground(BLACK);
+
+  // 2D Fullscreen Procedural Sky (Replaces ClearBackground color)
+  BeginShaderMode(skyShader);
+  DrawRectangle(0, 0, screenWidth, screenHeight, WHITE);
+  EndShaderMode();
+
+  BeginMode3D(camera);
+
+  if (drawGridBool) //a bool for drawings white grid lines
+  DrawGrid(64, 500.0f);
+
+  for (int i = 0; i < starsObj.pos.size(); i++) {
+    Vector3 bbColor;
+    if(starsObj.BlackbodyColorActivation[i])
+      bbColor = starsObj.BBColor[i];
+
+      else bbColor = starsObj.ColorNormalized[i];
       
-      // DRAW YOUR STAR MODEL AS USUAL
-      starModel.materials[0].shader = starShader;
-      DrawModel(starModel, starsObj.pos[i], starsObj.rad[i], WHITE);
+    float luminosity = starsObj.luminosity[i];
 
-      // DRAW ADDITIVE CORONA SHELLS
-      starModel.materials[0].shader = coronaShader;
-      SetShaderValue(coronaShader, coronaBbLoc, &bbColor, SHADER_UNIFORM_VEC3);
-      SetShaderValue(coronaShader, coronaLumiLoc, &luminosity, SHADER_UNIFORM_FLOAT);
+    // Set Photosphere Uniforms
+    int useBB = (int)starsObj.BlackbodyColorActivation[i];
+    SetShaderValue(starShader, starUseBbLoc, &useBB, SHADER_UNIFORM_INT);
+    SetShaderValue(starShader, starBbLoc, &bbColor, SHADER_UNIFORM_VEC3);
+    SetShaderValue(starShader, starLumiLoc, &luminosity, SHADER_UNIFORM_FLOAT);
+    
+    // DRAW YOUR STAR MODEL AS USUAL
+    starModel.materials[0].shader = starShader;
+    DrawModel(starModel, starsObj.pos[i], starsObj.rad[i], WHITE);
 
-      rlDisableDepthMask();
-      BeginBlendMode(BLEND_ADDITIVE);
-          float shellScales[3] = { 1.08f, 1.16f, 1.24f };
-          for (float scale : shellScales) {
-              SetShaderValue(coronaShader, coronaScaleLoc, &scale, SHADER_UNIFORM_FLOAT);
-              DrawModelEx(starModel, starsObj.pos[i], {0, 1, 0}, 0.0f, 
-                          {starsObj.rad[i], starsObj.rad[i], starsObj.rad[i]}, WHITE);
-          }
-      EndBlendMode();
-      rlEnableDepthMask();
+    // DRAW ADDITIVE CORONA SHELLS
+    starModel.materials[0].shader = coronaShader;
+    SetShaderValue(coronaShader, coronaBbLoc, &bbColor, SHADER_UNIFORM_VEC3);
+    SetShaderValue(coronaShader, coronaLumiLoc, &luminosity, SHADER_UNIFORM_FLOAT);
+
+    rlDisableDepthMask();
+    BeginBlendMode(BLEND_ADDITIVE);
+        float shellScales[3] = { 1.08f, 1.16f, 1.24f };
+        for (float scale : shellScales) {
+            SetShaderValue(coronaShader, coronaScaleLoc, &scale, SHADER_UNIFORM_FLOAT);
+            DrawModelEx(starModel, starsObj.pos[i], {0, 1, 0}, 0.0f, 
+                        {starsObj.rad[i], starsObj.rad[i], starsObj.rad[i]}, WHITE);
+        }
+    EndBlendMode();
+    rlEnableDepthMask();
 
 
-    }
+  }
 
-    EndMode3D();
-    EndTextureMode();
+  EndMode3D();
+  EndTextureMode();
 
-    // --- PASS 2: BLOOM EXTRACTION ---
+  // --- PASS 2: BLOOM EXTRACTION ---
 BeginTextureMode(bloomPing);
-    BeginShaderMode(extractShader);
-        DrawTextureRec(hdrTarget.texture, (Rectangle){ 0, 0, (float)hdrTarget.texture.width, (float)-hdrTarget.texture.height }, (Vector2){ 0, 0 }, WHITE);
-    EndShaderMode();
+  BeginShaderMode(extractShader);
+      DrawTextureRec(hdrTarget.texture, (Rectangle){ 0, 0, (float)hdrTarget.texture.width, (float)-hdrTarget.texture.height }, (Vector2){ 0, 0 }, WHITE);
+  EndShaderMode();
 EndTextureMode();
 
 // --- PASS 3: GAUSSIAN BLUR (H + V) ---
 BeginTextureMode(bloomPong);
-    BeginShaderMode(blurHShader);
-        DrawTextureRec(bloomPing.texture, (Rectangle){ 0, 0, (float)bloomPing.texture.width, (float)-bloomPing.texture.height }, (Vector2){ 0, 0 }, WHITE);
-    EndShaderMode();
+  BeginShaderMode(blurHShader);
+      DrawTextureRec(bloomPing.texture, (Rectangle){ 0, 0, (float)bloomPing.texture.width, (float)-bloomPing.texture.height }, (Vector2){ 0, 0 }, WHITE);
+  EndShaderMode();
 EndTextureMode();
 
 BeginTextureMode(bloomPing);
-    BeginShaderMode(blurVShader);
-        DrawTextureRec(bloomPong.texture, (Rectangle){ 0, 0, (float)bloomPong.texture.width, (float)-bloomPong.texture.height }, (Vector2){ 0, 0 }, WHITE);
-    EndShaderMode();
+  BeginShaderMode(blurVShader);
+      DrawTextureRec(bloomPong.texture, (Rectangle){ 0, 0, (float)bloomPong.texture.width, (float)-bloomPong.texture.height }, (Vector2){ 0, 0 }, WHITE);
+  EndShaderMode();
 EndTextureMode();
 
 // --- PASS 4: FINAL SCREEN DRAW (TONE MAPPING & COMPOSITE) ---
@@ -297,7 +284,7 @@ BeginDrawing();
   }
 
   //unload and close
-  //
+  /*
   UnloadRenderTexture(hdrTarget);
   UnloadRenderTexture(bloomPing);
   UnloadRenderTexture(bloomPong);
@@ -312,7 +299,7 @@ BeginDrawing();
 
   UnloadModel(starModel); 
   UnloadShader(starShader);
-  UnloadMesh(starMesh);
+  UnloadMesh(starMesh); */
 
   UnloadMusicStream(spaceSound);
   UnloadSound(impactSound); 

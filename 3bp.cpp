@@ -10,6 +10,12 @@ using std::cout;
 // Global array definitions
 star stableSystemSave[stableSystemSize];
 
+extern "C" {
+    __declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
+}
+
+
+
 int main() {
   InitWindow(screenWidth, screenHeight, "3 Body problem");
   InitAudioDevice();
@@ -137,7 +143,7 @@ Vector2 resolution = {(float)GetScreenWidth(), (float)GetScreenHeight()};
 SetShaderValue(skyShader, skyResLoc, &resolution,SHADER_UNIFORM_VEC2);
 
     if (IsKeyDown(KEY_LEFT_SHIFT))
-      cameraSpeed = 0.5f;
+      cameraSpeed = 6.0f;
     else
       cameraSpeed = NormalCameraSpeed;
 
@@ -198,7 +204,7 @@ SetShaderValue(skyShader, skyResLoc, &resolution,SHADER_UNIFORM_VEC2);
       float luminosity = starsObj.luminosity[i];
 
       // Set Photosphere Uniforms
-      bool useBB = (int)starsObj.BlackbodyColorActivation[i];
+      int useBB = (int)starsObj.BlackbodyColorActivation[i];
       SetShaderValue(starShader, starUseBbLoc, &useBB, SHADER_UNIFORM_INT);
       SetShaderValue(starShader, starBbLoc, &bbColor, SHADER_UNIFORM_VEC3);
       SetShaderValue(starShader, starLumiLoc, &luminosity, SHADER_UNIFORM_FLOAT);
@@ -270,6 +276,7 @@ BeginDrawing();
   }
 
   //unload and close
+  /*
   UnloadRenderTexture(hdrTarget);
   UnloadRenderTexture(bloomPing);
   UnloadRenderTexture(bloomPong);
@@ -287,7 +294,7 @@ BeginDrawing();
   UnloadMesh(starMesh);
 
   UnloadMusicStream(spaceSound);
-  UnloadSound(impactSound);
+  UnloadSound(impactSound); */
   CloseAudioDevice();
   CloseWindow();
   return 0;

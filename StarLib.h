@@ -79,9 +79,9 @@ inline constexpr Vector3 closeCamera = {50.0f,50.0f,50.0f};
 // Initialization function (no parameters), just saves some stable systems to the global array stableSystemSave
 inline void initStableSystem() { 
   stableSystemSave[0].addStar(Vector3{500.0, 50.0, 0.0}, 100.0f, 100.0f,
-                              Vector3{}, RED);
+                              Vector3{}, RED, true, 5778.0);
   stableSystemSave[0].addStar(Vector3{-100, 200.0, -100.0}, 0.5f, 20.0f,
-                              Vector3{0.01, -0.01, 5.0});
+                              Vector3{0.01, -0.01, 5.0}, YELLOW);
   stableSystemSave[0].addStar(Vector3{1100, -200.0, 100.0}, 0.25f, 20.0f,
                               Vector3{-0.01, 0.01, -5.0}, BLUE);
  

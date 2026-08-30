@@ -59,7 +59,7 @@ int main() {
 
 //shader setup
 Shader starShader    = LoadShader("shaders/shader.vert", "shaders/shader.frag");
-Shader coronaShader  = LoadShader("shaders/corona/corona.frag", "shaders/corona/corona.frag");
+Shader coronaShader  = LoadShader("shaders/corona/corona.vert", "shaders/corona/corona.frag");
 Shader skyShader     = LoadShader(0, "shaders/sky_background.frag");
 Shader extractShader = LoadShader(0, "shaders/bloom/bloom_extract.frag");
 Shader blurHShader   = LoadShader(0, "shaders/bloom_blur_h.frag");
@@ -281,6 +281,10 @@ for (int i = 0; i < starsObj.pos.size(); i++) {
         // 0.0 at oldest point (tail tip) -> 1.0 at current star position (head)
         float progress = Clamp(currentDist / TARGET_TRAIL_LENGTH, 0.0f, 1.0f); 
         Color segmentColor = ColorAlpha(starBaseColor, progress * progress * 0.7f);
+
+        if (!deleteTailBoll) {
+        segmentColor = starBaseColor;
+        }
         
         DrawLine3D(starsObj.trail[i][j - 1], starsObj.trail[i][j], segmentColor);
     }
@@ -313,6 +317,20 @@ rlEnableDepthMask();
     // DRAW YOUR STAR MODEL AS USUAL
     starModel.materials[0].shader = starShader;
     DrawModel(starModel, starsObj.pos[i], starsObj.rad[i], WHITE);
+  }
+
+  for (int i = 0; i < starsObj.pos.size(); i++) {
+    Vector3 bbColor;
+    if(starsObj.BlackbodyColorActivation[i])
+      bbColor = starsObj.BBColor[i];
+
+      else bbColor = starsObj.ColorNormalized[i];
+      
+    float luminosity = starsObj.luminosity[i];
+
+
+    // Set Photosphere Uniforms
+    int useBB = (int)starsObj.BlackbodyColorActivation[i];
 
     // DRAW ADDITIVE CORONA SHELLS
     starModel.materials[0].shader = coronaShader;
@@ -321,7 +339,7 @@ rlEnableDepthMask();
 
     rlDisableDepthMask();
     BeginBlendMode(BLEND_ADDITIVE);
-        float shellScales[3] = { 1.08f, 1.16f, 1.24f };
+        float shellScales[3] = { 1.04f, 1.08f, 1.12f};
         for (float scale : shellScales) {
             SetShaderValue(coronaShader, coronaScaleLoc, &scale, SHADER_UNIFORM_FLOAT);
             DrawModelEx(starModel, starsObj.pos[i], {0, 1, 0}, 0.0f, 
@@ -338,7 +356,7 @@ rlEnableDepthMask();
     rlDisableDepthMask();
     BeginBlendMode(BLEND_ADDITIVE);
         // Render a single smooth atmosphere container (1.45x star radius)
-        float flameContainerScaleWide = 1.015f;
+        float flameContainerScaleWide = 1.18f;
         Vector3 scaleVecWide = { starsObj.rad[i] * flameContainerScaleWide, starsObj.rad[i] * flameContainerScaleWide, starsObj.rad[i] * flameContainerScaleWide };
         DrawModelEx(starModel, starsObj.pos[i], {0, 1, 0}, 0.0f, scaleVecWide, WHITE);
     EndBlendMode();
@@ -353,7 +371,7 @@ rlEnableDepthMask();
     rlDisableDepthMask(); 
     BeginBlendMode(BLEND_ADDITIVE);
         // Render a single smooth atmosphere container (1.45x star radius)
-        float flameContainerScale = 1.015f;
+        float flameContainerScale = 1.06f;
         Vector3 scaleVec = { starsObj.rad[i] * flameContainerScale, starsObj.rad[i] * flameContainerScale, starsObj.rad[i] * flameContainerScale };
         DrawModelEx(starModel, starsObj.pos[i], {0, 1, 0}, 0.0f, scaleVec, WHITE);
     EndBlendMode();

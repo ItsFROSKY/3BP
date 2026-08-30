@@ -21,7 +21,7 @@ const float FILAMENT_SCALE=46.;
 const float FLOW_SPEED=.001;
 const float Rim_surface=3;
 
-const float Dark_level=20.5;
+const float Dark_level=40.5;
 
 float hash(vec3 p)
 {

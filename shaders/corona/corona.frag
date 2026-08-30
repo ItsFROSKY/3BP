@@ -9,6 +9,8 @@ uniform float u_time;
 
 out vec4 outputColor;
 
+const float Detail_Pattren=60.;
+
 vec3 hashGrad(vec3 p){
     p=vec3(dot(p,vec3(127.1,311.7,74.7)),
     dot(p,vec3(269.5,183.3,246.1)),
@@ -33,7 +35,7 @@ float noise3D(vec3 p){
         float dotV=max(dot(N,V),0.);
         
         float rim=pow(1.-dotV,2.2);
-        vec3 wispPos=fragLocalPos*5.+vec3(0.,u_time*.2,u_time*.1);
+        vec3 wispPos=fragLocalPos*Detail_Pattren+vec3(0.,u_time*.2,u_time*.1);
         float wisps=noise3D(wispPos)*.5+.5;
         
         float alpha=rim*wisps;

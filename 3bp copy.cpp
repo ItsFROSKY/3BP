@@ -378,6 +378,11 @@ if (IsKeyPressed(KEY_R)) {
 	EndShaderMode();
 
 	BeginMode3D(camera);
+	rlSetClipPlanes(0.1f, 5000000.0f); //makes stars render even when far
+
+	TraceLog(LOG_INFO, "CLIP TEST: 0.1 -> 5000000");
+rlSetClipPlanes(0.1f, 5000000.0f);
+BeginMode3D(camera);
 
 
 

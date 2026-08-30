@@ -66,16 +66,12 @@ Shader blurHShader   = LoadShader(0, "shaders/bloom_blur_h.frag");
 Shader blurVShader   = LoadShader(0, "shaders/bloom_blur_v.frag");
 Shader postShader    = LoadShader(0, "shaders/post_final.frag");
 Shader flameShader = LoadShader("shaders/flames/star_flames.vert", "shaders/flames/star_flames.frag");
-Shader flameShaderWide = LoadShader("shaders/flames/star_flames_wide.vert", "shaders/flames/star_flames_wide.frag");
+TraceLog(LOG_INFO, "Loading wide vertex: %s", "shaders/flames/star_flames_wide.vert");
+TraceLog(LOG_INFO, "Loading wide fragment: %s", "shaders/flames/starFlameWide.frag");
 
-TraceLog(LOG_INFO, "Wide shader ID: %d", flameShaderWide.id);
 
-//tell Raylib to map transformation matrices to the shader uniforms
-flameShader.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocation(flameShader, "matModel");
-flameShader.locs[SHADER_LOC_MATRIX_MVP]   = GetShaderLocation(flameShader, "mvp");
 
-flameShaderWide.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocation(flameShaderWide, "matModel");
-flameShaderWide.locs[SHADER_LOC_MATRIX_MVP]   = GetShaderLocation(flameShaderWide, "mvp");
+Shader flameShaderWide = LoadShader("shaders/flames/star_flames_wide.vert", "shaders/flames/starFlameWide.frag");
 
 int starViewPosLoc  = GetShaderLocation(starShader, "u_viewPos");
 int starTimeLoc     = GetShaderLocation(starShader, "u_time");
@@ -105,22 +101,16 @@ int flameViewLoc = GetShaderLocation(flameShader, "u_viewPos");
 int flameTimeLoc = GetShaderLocation(flameShader, "u_time");
 int flameColorLoc = GetShaderLocation(flameShader, "u_starColor");
 int flameLumiLoc = GetShaderLocation(flameShader, "u_luminosity");
-int flamePosLoc   = GetShaderLocation(flameShader, "u_starPos");
-int flameRadLoc   = GetShaderLocation(flameShader, "u_starRadius");
 
 int flameViewLocWide = GetShaderLocation(flameShaderWide, "u_viewPos");
 int flameTimeLocWide = GetShaderLocation(flameShaderWide, "u_time");
 int flameColorLocWide = GetShaderLocation(flameShaderWide, "u_starColor");
 int flameLumiLocWide = GetShaderLocation(flameShaderWide, "u_luminosity");
-int flamePosLocWide   = GetShaderLocation(flameShaderWide, "u_starPos");
-int flameRadLocWide   = GetShaderLocation(flameShaderWide, "u_starRadius");
 
 TraceLog(LOG_INFO, "Wide view: %d", flameViewLocWide);
 TraceLog(LOG_INFO, "Wide time: %d", flameTimeLocWide);
 TraceLog(LOG_INFO, "Wide color: %d", flameColorLocWide);
 TraceLog(LOG_INFO, "Wide lumi: %d", flameLumiLocWide);
-TraceLog(LOG_INFO, "Wide pos: %d", flamePosLocWide);
-TraceLog(LOG_INFO, "Wide radius: %d", flameRadLocWide);
 
     //Resolution uniforms
 float renderW = (float)screenWidth;
@@ -344,13 +334,11 @@ rlEnableDepthMask();
     starModel.materials[0].shader = flameShaderWide;
     SetShaderValue(flameShaderWide, flameColorLocWide, &bbColor, SHADER_UNIFORM_VEC3);
     SetShaderValue(flameShaderWide, flameLumiLocWide, &luminosity, SHADER_UNIFORM_FLOAT);
-    SetShaderValue(flameShaderWide, flamePosLocWide, &starsObj.pos[i], SHADER_UNIFORM_VEC3);
-    SetShaderValue(flameShaderWide, flameRadLocWide, &starsObj.rad[i], SHADER_UNIFORM_FLOAT);
 
     rlDisableDepthMask();
     BeginBlendMode(BLEND_ADDITIVE);
         // Render a single smooth atmosphere container (1.45x star radius)
-        float flameContainerScaleWide = 1.0f;
+        float flameContainerScaleWide = 1.015f;
         Vector3 scaleVecWide = { starsObj.rad[i] * flameContainerScaleWide, starsObj.rad[i] * flameContainerScaleWide, starsObj.rad[i] * flameContainerScaleWide };
         DrawModelEx(starModel, starsObj.pos[i], {0, 1, 0}, 0.0f, scaleVecWide, WHITE);
     EndBlendMode();
@@ -361,13 +349,11 @@ rlEnableDepthMask();
     starModel.materials[0].shader = flameShader;
     SetShaderValue(flameShader, flameColorLoc, &bbColor, SHADER_UNIFORM_VEC3);
     SetShaderValue(flameShader, flameLumiLoc, &luminosity, SHADER_UNIFORM_FLOAT);
-    SetShaderValue(flameShader, flamePosLoc, &starsObj.pos[i], SHADER_UNIFORM_VEC3);
-    SetShaderValue(flameShader, flameRadLoc, &starsObj.rad[i], SHADER_UNIFORM_FLOAT);
 
     rlDisableDepthMask(); 
     BeginBlendMode(BLEND_ADDITIVE);
         // Render a single smooth atmosphere container (1.45x star radius)
-        float flameContainerScale = 1.0f;
+        float flameContainerScale = 1.015f;
         Vector3 scaleVec = { starsObj.rad[i] * flameContainerScale, starsObj.rad[i] * flameContainerScale, starsObj.rad[i] * flameContainerScale };
         DrawModelEx(starModel, starsObj.pos[i], {0, 1, 0}, 0.0f, scaleVec, WHITE);
     EndBlendMode();

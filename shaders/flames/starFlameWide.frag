@@ -5,7 +5,7 @@ in vec3 fragNormal;
 in vec3 fragLocalPos;
 in float v_flame;
 
-out vec4 finalColorWide;
+out vec4 finalColor;
 
 uniform vec3 u_viewPos;
 uniform vec3 u_starColor;
@@ -15,13 +15,13 @@ uniform float u_luminosity;
 // ------------------------------------------------------------
 // Flame character
 // ------------------------------------------------------------
-const float MACRO_SCALE=.8;
-const float DETAIL_SCALE=19.;
-const float FILAMENT_SCALE=46.;
-const float FLOW_SPEED=.001;
-const float Rim_surface=3;
+const float MACRO_SCALE=100.8;
+const float DETAIL_SCALE=1900.;
+const float FILAMENT_SCALE=460.;
+const float FLOW_SPEED=1.;
+const float Rim_surface=1.5;
 
-const float Dark_level=2.5;
+const float Dark_level=1.;
 
 float hash(vec3 p)
 {
@@ -74,9 +74,15 @@ float noise(vec3 p)
                 vec3 V=normalize(u_viewPos-fragPosition);
                 
                 float ndv=max(dot(N,V),0.);
-                float rim=1.-ndv+Rim_surface;
-                float old_rim=1.-ndv;
-                float old_rim_transp=pow(old_rim,mix(10,1,smoothstep(0,1,old_rim)));
+                float rim=1.-ndv;
+                
+                // Opposite of the rim mask:
+                // 1.0 in the center/front, 0.0 at the edges.
+                float centerMask=smoothstep(.0,1.,step(.4,ndv));
+                centerMask*=Rim_surface;
+                
+                // Optional softer transparency toward the edges.
+                //float centerTransp=pow(ndv,1.5);
                 
                 // --------------------------------------------------------
                 // 1. Broad plasma motion
@@ -99,7 +105,7 @@ float noise(vec3 p)
                 // 2. Filament layer
                 // --------------------------------------------------------
                 vec3 filamentP=P*FILAMENT_SCALE
-                +vec3(0.,-u_time*2.2,u_time*1.15);
+                +vec3(0.,-u_time*2.2*FLOW_SPEED,u_time*1.15*FLOW_SPEED);
                 
                 float filaments=filamentNoise(filamentP);
                 filaments+=.55*filamentNoise(filamentP*.55+13.);
@@ -124,10 +130,11 @@ float noise(vec3 p)
                 // 4. Stronger plasma at the limb
                 // --------------------------------------------------------
                 // Very thin at the front-facing surface, strongest near silhouette.
-                float limb=pow(rim,Dark_level);
+                float limb=pow(centerMask,Dark_level);
+                //limb=centerMask;
                 
                 // Extra breakup on the silhouette prevents a perfect smooth ring.
-                float edgeNoise=fbm(P*30.-vec3(0.,u_time*1.8,u_time*.65));
+                float edgeNoise=fbm(P*30.-vec3(0.,u_time*1.8*FLOW_SPEED,u_time*.65*FLOW_SPEED));
                 float edgeBreakup=smoothstep(.30,.78,edgeNoise);
                 
                 float flameMask=density*limb;
@@ -142,7 +149,7 @@ float noise(vec3 p)
                 // --------------------------------------------------------
                 // 5. Heat color ramp
                 // --------------------------------------------------------
-                vec3 baseColor=u_starColor*.1;
+                vec3 baseColor=u_starColor*1.;
                 
                 // Hot material tends toward white near dense regions.
                 vec3 hotColor=baseColor*1.4;
@@ -156,18 +163,18 @@ float noise(vec3 p)
                     +filaments*.22,
                 0.,1.);
                 
-                vec3 flameColor=mix(warmColor,baseColor,smoothstep(.18,.46,heat));
+                vec3 flameColor=mix(baseColor,warmColor,smoothstep(.18,.46,heat));
                 flameColor=mix(flameColor,hotColor,smoothstep(.48,.88,heat));
                 
                 // A tiny white-hot accent makes dense knots feel incandescent.
                 float hotKnot=pow(clamp(heat,0.,1.),5.);
-                flameColor=mix(flameColor,vec3(1.),hotKnot*.08);
+                flameColor=mix(flameColor,vec3(1.),hotKnot*.05);
                 
                 // --------------------------------------------------------
                 // 6. HDR output
                 // --------------------------------------------------------
                 float intensity=flameMask*(.65+1.05*v_flame);
                 
-                finalColorWide=vec4(flameColor*intensity*u_luminosity,flameMask*.75);
+                finalColor=vec4(flameColor*intensity*u_luminosity,1.);
             }
             

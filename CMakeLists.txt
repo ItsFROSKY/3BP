@@ -9,7 +9,10 @@ add_subdirectory(raylib)
 
 # Copy shader files to the build directory
 # Recursively collect all files relative to the shaders folder
-file(GLOB_RECURSE ALL_SHADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/shaders" "${CMAKE_CURRENT_SOURCE_DIR}/shaders/*")
+file(GLOB_RECURSE ALL_SHADERS CONFIGURE_DEPENDS
+    RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/shaders"
+    "${CMAKE_CURRENT_SOURCE_DIR}/shaders/*"
+)
 
 foreach(SHADER_REL ${ALL_SHADERS})
     configure_file(

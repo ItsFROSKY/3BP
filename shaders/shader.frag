@@ -147,15 +147,14 @@ void main(){
         baseColor=u_blackbodyColor;
         
         // Dark plasma valleys
-        vec3 baseColorTemp=baseColor*1.;
-        colOrign=baseColorTemp;
-        colDark=baseColorTemp*.15;
+        colOrign=baseColor;
+        colDark=baseColor*.0;
         
         // Hot granules boost intensity of the EXACT blackbody hue
-        colHot=baseColorTemp*1.2;
+        colHot=baseColor*1.2;
         // Blend plasma layers
-        PlasmaCol=mix(colDark,colOrign,smoothstep(.15,.35,plasmaPattern));
-        PlasmaCol=mix(PlasmaCol,colHot,smoothstep(.35,.75,plasmaPattern));
+        PlasmaCol=mix(colDark,colOrign,smoothstep(.3,.4,plasmaPattern));
+        PlasmaCol=mix(PlasmaCol,colHot,smoothstep(.4,.75,plasmaPattern));
         PlasmaCol=mix(PlasmaCol,colPeak,smoothstep(.75,.98,plasmaPattern));
     }
     

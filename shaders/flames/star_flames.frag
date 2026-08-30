@@ -21,7 +21,7 @@ const float FILAMENT_SCALE=46.;
 const float FLOW_SPEED=.001;
 const float Rim_surface=3;
 
-const float Dark_level=2.5;
+const float Dark_level=20.5;
 
 float hash(vec3 p)
 {
@@ -156,18 +156,18 @@ float noise(vec3 p)
                     +filaments*.22,
                 0.,1.);
                 
-                vec3 flameColor=mix(warmColor,baseColor,smoothstep(.18,.46,heat));
+                vec3 flameColor=mix(baseColor,warmColor,smoothstep(.18,.46,heat));
                 flameColor=mix(flameColor,hotColor,smoothstep(.48,.88,heat));
                 
                 // A tiny white-hot accent makes dense knots feel incandescent.
                 float hotKnot=pow(clamp(heat,0.,1.),5.);
-                flameColor=mix(flameColor,vec3(1.),hotKnot*.08);
+                flameColor=mix(flameColor,vec3(1.),hotKnot*.04);
                 
                 // --------------------------------------------------------
                 // 6. HDR output
                 // --------------------------------------------------------
                 float intensity=flameMask*(.65+1.05*v_flame);
                 
-                finalColor=vec4(flameColor*intensity*u_luminosity,flameMask*.75*old_rim_transp);
+                finalColor=vec4(flameColor*intensity*u_luminosity,flameMask*.75);
             }
             

@@ -147,7 +147,7 @@ while (!WindowShouldClose()) {
 
   float time = (float)GetTime();
 
-  SetShaderValue(skyShader, timeLoc, &time,SHADER_UNIFORM_FLOAT);
+  SetShaderValue(skyShader, skyTimeLoc, &time,SHADER_UNIFORM_FLOAT);
 
   Vector2 resolution = {(float)GetScreenWidth(), (float)GetScreenHeight()};
 

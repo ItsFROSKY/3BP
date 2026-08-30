@@ -7,7 +7,6 @@ in vec3 vertexNormal;
 uniform mat4 mvp;
 uniform mat4 matModel;
 uniform float u_time;
-
 out vec3 fragPosition;
 out vec3 fragNormal;
 out vec3 fragLocalPos;
@@ -56,13 +55,14 @@ float noise(vec3 p)
             void main()
             {
                 vec3 dir=normalize(vertexPosition);
+                float u_timeSpeed=u_time;
                 
                 // Large moving structures: these decide WHERE the star erupts.
                 vec3 macroPos=dir*3.5;
-                macroPos+=vec3(0.,u_time*.10,-u_time*.055);
+                macroPos+=vec3(0.,u_timeSpeed*.10,-u_timeSpeed*.055);
                 
                 float macroA=fbm(macroPos);
-                float macroB=fbm(dir*7.-vec3(u_time*.16,-u_time*.08,u_time*.12));
+                float macroB=fbm(dir*7.-vec3(u_timeSpeed*.16,-u_timeSpeed*.08,u_timeSpeed*.12));
                 
                 // Convert broad noise into localized eruption zones.
                 float eruption=smoothstep(.45,.74,macroA);
@@ -73,7 +73,7 @@ float noise(vec3 p)
                 
                 // Fine animated surface turbulence.
                 vec3 finePos=vertexPosition*18.
-                +vec3(0.,-u_time*.75,u_time*.42);
+                +vec3(0.,-u_timeSpeed*.75,u_timeSpeed*.42);
                 float fine=fbm(finePos);
                 
                 // Mostly calm surface, occasional tall plasma tongues.

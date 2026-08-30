@@ -107,11 +107,6 @@ int flameTimeLocWide = GetShaderLocation(flameShaderWide, "u_time");
 int flameColorLocWide = GetShaderLocation(flameShaderWide, "u_starColor");
 int flameLumiLocWide = GetShaderLocation(flameShaderWide, "u_luminosity");
 
-TraceLog(LOG_INFO, "Wide view: %d", flameViewLocWide);
-TraceLog(LOG_INFO, "Wide time: %d", flameTimeLocWide);
-TraceLog(LOG_INFO, "Wide color: %d", flameColorLocWide);
-TraceLog(LOG_INFO, "Wide lumi: %d", flameLumiLocWide);
-
     //Resolution uniforms
 float renderW = (float)screenWidth;
 float renderH = (float)screenHeight;
@@ -218,8 +213,12 @@ while (!WindowShouldClose()) {
     physicsTimer -= fixedDeltaTime;
 
     // DISTANCE-BASED TRAIL UPDATE
-    // Use 0.5f spacing when trails are infinite, 0.001f when fading
-    float minRecordDist = deleteTailBool ? 0.05f : Trail_update_NoDelete;
+    // Use 0.5f spacing when trails are infinite, 0.05f when fading
+  }
+
+  if (drawTailOnOff) {
+
+  float minRecordDist = deleteTailBool ? 0.001f : Trail_update_NoDelete;
 
     for (int i = 0; i < starsObj.pos.size(); i++) {
         if (starsObj.trail[i].empty() || Vector3Distance(starsObj.trail[i].back(), starsObj.pos[i]) > minRecordDist) {
@@ -261,52 +260,54 @@ while (!WindowShouldClose()) {
   EndShaderMode();
 
   BeginMode3D(camera);
+  rlSetClipPlanes(0.1f, 50000.0f);
 
 
 
 
 
-rlDisableDepthMask();
-BeginBlendMode(BLEND_ADDITIVE);
+  if(drawTailOnOff) {
+  rlDisableDepthMask();
+  BeginBlendMode(BLEND_ADDITIVE);
 
-for (int i = 0; i < starsObj.pos.size(); i++) {
-    int trailSize = starsObj.trail[i].size();
-    if (trailSize < 2) continue;
+  for (int i = 0; i < starsObj.pos.size(); i++) {
+      int trailSize = starsObj.trail[i].size();
+      if (trailSize < 2) continue;
 
-    Vector3 rawColor = starsObj.BlackbodyColorActivation[i] ? starsObj.BBColor[i] : starsObj.ColorNormalized[i];
-    Color starBaseColor = Color{
-        (unsigned char)Clamp(rawColor.x * 255.0f, 0.0f, 255.0f),
-        (unsigned char)Clamp(rawColor.y * 255.0f, 0.0f, 255.0f),
-        (unsigned char)Clamp(rawColor.z * 255.0f, 0.0f, 255.0f),
-        255
-    };
+      Vector3 rawColor = starsObj.BlackbodyColorActivation[i] ? starsObj.BBColor[i] : starsObj.ColorNormalized[i];
+      Color starBaseColor = Color{
+          (unsigned char)Clamp(rawColor.x * 255.0f, 0.0f, 255.0f),
+          (unsigned char)Clamp(rawColor.y * 255.0f, 0.0f, 255.0f),
+          (unsigned char)Clamp(rawColor.z * 255.0f, 0.0f, 255.0f),
+          255
+      };
 
-   rlBegin(RL_LINES); // Batch raw line drawing
-    float currentDist = 0.0f;
+    rlBegin(RL_LINES); // Batch raw line drawing
+      float currentDist = 0.0f;
 
-    // If trail is huge (infinite mode), render every Nth point to keep 60+ FPS
-    //
-    int step = (!deleteTailBool && trailSize > Tail_Segments_No_delete) ? (trailSize / Tail_Segments_No_delete) : 1;
+      // If trail is huge (infinite mode), render every Nth point to keep 60+ FPS
+      int step = (trailSize > Tail_Segments_No_delete) ? (trailSize / Tail_Segments_No_delete) : 1;
 
-    for (int j = step; j < trailSize; j += step) {
-        Color segmentColor = starBaseColor;
+      for (int j = step; j < trailSize; j += step) {
+          Color segmentColor = starBaseColor;
 
-        // ONLY run expensive sqrt() distance checks if fading tail is enabled
-        if (deleteTailBool) {
-            currentDist += Vector3Distance(starsObj.trail[i][j - step], starsObj.trail[i][j]);
-            float progress = Clamp(currentDist / TARGET_TRAIL_LENGTH, 0.0f, 1.0f); 
-            segmentColor = ColorAlpha(starBaseColor, progress * progress * 0.7f);
-        }
+          // ONLY run expensive sqrt() distance checks if fading tail is enabled
+          if (deleteTailBool) {
+              currentDist += Vector3Distance(starsObj.trail[i][j - step], starsObj.trail[i][j]);
+              float progress = Clamp(currentDist / TARGET_TRAIL_LENGTH, 0.0f, 1.0f); 
+              segmentColor = ColorAlpha(starBaseColor, progress * progress * 0.7f);
+          }
 
-        rlColor4ub(segmentColor.r, segmentColor.g, segmentColor.b, segmentColor.a);
-        rlVertex3f(starsObj.trail[i][j - step].x, starsObj.trail[i][j - step].y, starsObj.trail[i][j - step].z);
-        rlVertex3f(starsObj.trail[i][j].x, starsObj.trail[i][j].y, starsObj.trail[i][j].z);
-    }
-    rlEnd();
+          rlColor4ub(segmentColor.r, segmentColor.g, segmentColor.b, segmentColor.a);
+          rlVertex3f(starsObj.trail[i][j - step].x, starsObj.trail[i][j - step].y, starsObj.trail[i][j - step].z);
+          rlVertex3f(starsObj.trail[i][j].x, starsObj.trail[i][j].y, starsObj.trail[i][j].z);
+      }
+      rlEnd();
+      }
+
+      EndBlendMode();
+      rlEnableDepthMask();
 }
-
-EndBlendMode();
-rlEnableDepthMask();
 
   if (drawGridBool) //a bool for drawings white grid lines
   DrawGrid(64, 500.0f);

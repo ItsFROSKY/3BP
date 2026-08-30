@@ -23,7 +23,7 @@ int main() {
   int screenWidth = GetScreenWidth();
   int screenHeight = GetScreenHeight();
   DisableCursor();
-  SetTargetFPS(144);
+  //SetTargetFPS(144);
   InitAudioDevice();
   Music spaceSound = LoadMusicStream("../assest/space.mp3");
   Sound impactSound = LoadSound("../assest/impact.mp3");
@@ -33,7 +33,7 @@ int main() {
                                            // stars setup
   star starsObjInit;
   starsObjInit.epsilonValue(0.01); //idk, i think it does smth lol sry
-  star starsObj = stableSystemSave[5]; // maybe you want to run stableSystem[0],
+  star starsObj = stableSystemSave[Stable_system_runNum]; // maybe you want to run stableSystem[0],
                                        // so you change value
 
   // camera setup
@@ -147,6 +147,8 @@ starModel.materials[0].shader = starShader;
 
 
 
+
+
 // gameloop
 
 while (!WindowShouldClose()) {
@@ -215,27 +217,33 @@ while (!WindowShouldClose()) {
     RK4(starsObj, fixedDeltaTime);
     physicsTimer -= fixedDeltaTime;
 
-    //DISTANCE-BASED TRAIL UPDATE
+    // DISTANCE-BASED TRAIL UPDATE
+    // Use 0.5f spacing when trails are infinite, 0.001f when fading
+    float minRecordDist = deleteTailBool ? 0.05f : Trail_update_NoDelete;
+
     for (int i = 0; i < starsObj.pos.size(); i++) {
-      if (starsObj.trail[i].empty() || Vector3Distance(starsObj.trail[i].back(), starsObj.pos[i]) > 0.001f) {
-          starsObj.trail[i].push_back(starsObj.pos[i]);
-      }
+        if (starsObj.trail[i].empty() || Vector3Distance(starsObj.trail[i].back(), starsObj.pos[i]) > minRecordDist) {
+            starsObj.trail[i].push_back(starsObj.pos[i]);
+        }
 
-      float accumulatedDistance = 0.0f;
-      int popCount = 0;
+    // Only truncate the trail if deleteTailBool is active
+    if (deleteTailBool) {
+        float accumulatedDistance = 0.0f;
+        int popCount = 0;
 
-      for (int j = (int)starsObj.trail[i].size() - 1; j > 0; j--) {
-          accumulatedDistance += Vector3Distance(starsObj.trail[i][j], starsObj.trail[i][j - 1]);
-          if (accumulatedDistance > TARGET_TRAIL_LENGTH) {
-              popCount = j;
-              break;
-          }
-      }
+        for (int j = (int)starsObj.trail[i].size() - 1; j > 0; j--) {
+            accumulatedDistance += Vector3Distance(starsObj.trail[i][j], starsObj.trail[i][j - 1]);
+            if (accumulatedDistance > TARGET_TRAIL_LENGTH) {
+                popCount = j;
+                break;
+            }
+        }
 
-      while (popCount > 0 && !starsObj.trail[i].empty()) {
-          starsObj.trail[i].pop_front();
-          popCount--;
-      }
+        while (popCount > 0 && !starsObj.trail[i].empty()) {
+            starsObj.trail[i].pop_front();
+            popCount--;
+        }
+     }
     }
   }
 
@@ -263,8 +271,7 @@ BeginBlendMode(BLEND_ADDITIVE);
 
 for (int i = 0; i < starsObj.pos.size(); i++) {
     int trailSize = starsObj.trail[i].size();
-    if (trailSize < 2) 
-    continue;
+    if (trailSize < 2) continue;
 
     Vector3 rawColor = starsObj.BlackbodyColorActivation[i] ? starsObj.BBColor[i] : starsObj.ColorNormalized[i];
     Color starBaseColor = Color{
@@ -272,28 +279,34 @@ for (int i = 0; i < starsObj.pos.size(); i++) {
         (unsigned char)Clamp(rawColor.y * 255.0f, 0.0f, 255.0f),
         (unsigned char)Clamp(rawColor.z * 255.0f, 0.0f, 255.0f),
         255
-    }; //just making it into a normall color, clamp make sure its not more than 255
+    };
 
+   rlBegin(RL_LINES); // Batch raw line drawing
     float currentDist = 0.0f;
-    for (int j = 1; j < trailSize; j++) {
-        currentDist += Vector3Distance(starsObj.trail[i][j - 1], starsObj.trail[i][j]);
-        
-        // 0.0 at oldest point (tail tip) -> 1.0 at current star position (head)
-        float progress = Clamp(currentDist / TARGET_TRAIL_LENGTH, 0.0f, 1.0f); 
-        Color segmentColor = ColorAlpha(starBaseColor, progress * progress * 0.7f);
 
-        if (!deleteTailBoll) {
-        segmentColor = starBaseColor;
+    // If trail is huge (infinite mode), render every Nth point to keep 60+ FPS
+    //
+    int step = (!deleteTailBool && trailSize > Tail_Segments_No_delete) ? (trailSize / Tail_Segments_No_delete) : 1;
+
+    for (int j = step; j < trailSize; j += step) {
+        Color segmentColor = starBaseColor;
+
+        // ONLY run expensive sqrt() distance checks if fading tail is enabled
+        if (deleteTailBool) {
+            currentDist += Vector3Distance(starsObj.trail[i][j - step], starsObj.trail[i][j]);
+            float progress = Clamp(currentDist / TARGET_TRAIL_LENGTH, 0.0f, 1.0f); 
+            segmentColor = ColorAlpha(starBaseColor, progress * progress * 0.7f);
         }
-        
-        DrawLine3D(starsObj.trail[i][j - 1], starsObj.trail[i][j], segmentColor);
+
+        rlColor4ub(segmentColor.r, segmentColor.g, segmentColor.b, segmentColor.a);
+        rlVertex3f(starsObj.trail[i][j - step].x, starsObj.trail[i][j - step].y, starsObj.trail[i][j - step].z);
+        rlVertex3f(starsObj.trail[i][j].x, starsObj.trail[i][j].y, starsObj.trail[i][j].z);
     }
+    rlEnd();
 }
 
 EndBlendMode();
 rlEnableDepthMask();
-
-
 
   if (drawGridBool) //a bool for drawings white grid lines
   DrawGrid(64, 500.0f);

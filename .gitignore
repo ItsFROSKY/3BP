@@ -3,3 +3,4 @@ build/
 .cmake/
 .vscode/
 *.exe
+Videos_export/

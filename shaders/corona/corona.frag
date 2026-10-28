@@ -1,6 +1,6 @@
 #version 330
 in vec3 fragNormal;
-in vec3 fragLocalPos;
+in vec3 fragWorldPos;
 
 uniform vec3 u_viewPos;
 uniform vec3 u_blackbodyColor;
@@ -31,11 +31,11 @@ float noise3D(vec3 p){
     
     void main(){
         vec3 N=normalize(fragNormal);
-        vec3 V=normalize(u_viewPos-fragLocalPos);
+        vec3 V=normalize(u_viewPos-fragWorldPos);
         float dotV=max(dot(N,V),0.);
         
         float rim=pow(1.-dotV,2.2);
-        vec3 wispPos=fragLocalPos*Detail_Pattren+vec3(0.,u_time*.2,u_time*.1);
+        vec3 wispPos=fragWorldPos*Detail_Pattren+vec3(0.,u_time*.2,u_time*.1);
         float wisps=noise3D(wispPos)*.5+.5;
         
         float alpha=rim*wisps;

@@ -1,18 +1,22 @@
 #version 330
+uniform vec3 u_viewPos;
+uniform vec3 u_starColor;
+uniform vec3 u_blackbodyColor;
+uniform int u_useBlackbody;//1 = Realistic Blackbody mode, 0 = Custom Color mode
+uniform float u_time;
+uniform float u_luminosity;//HDR scale factor
+
 in vec3 fragNormal;
 in vec3 fragPosition;
 in vec3 fragLocalPos;
+in vec3 fragWorldPos;
 
-uniform vec3 u_viewPos;
-uniform vec3 u_starColor;// Custom RGB color override (e.g. Yellow = 1.0, 1.0, 0.0)
-uniform vec3 u_blackbodyColor;// CPU-precomputed Blackbody RGB base
-uniform int u_useBlackbody;// 1 = Realistic Blackbody mode, 0 = Custom Color mode
-uniform float u_time;
-uniform float u_luminosity;// HDR scale factor
+
+vec3 V = normalize(u_viewPos - fragWorldPos);
 
 out vec4 outputColor;
 
-// 3D Random Gradient Vector Generator
+//3D random gradient vector generator
 vec3 hashGrad(vec3 p){
     p=vec3(dot(p,vec3(127.1,311.7,74.7)),
     dot(p,vec3(269.5,183.3,246.1)),
@@ -20,12 +24,12 @@ vec3 hashGrad(vec3 p){
     return normalize(-1.+2.*fract(sin(p)*43758.5453123));
 }
 
-// True 3D Perlin Gradient Noise with C2 Continuity
+//true 3D perlin gradient noise with C2 continuity
 float noise3D(vec3 p){
     vec3 i=floor(p);
     vec3 f=fract(p);
     
-    // C2 quintic curve
+    //C2 quintic curve
     vec3 u=f*f*f*(f*(f*6.-15.)+10.);
     
     // Gradients and dot products at 8 corners
@@ -143,38 +147,38 @@ void main(){
     vec3 PlasmaCol;
     
     if(u_useBlackbody==1){
-        // --- MODE 1: PHYSICAL BLACKBODY RAMP ---
+        //MODE 1:
         baseColor=u_blackbodyColor;
         
-        // Dark plasma valleys
+        //dark plasma valleys
         colOrign=baseColor;
         colDark=baseColor*.0;
         
-        // Hot granules boost intensity of the EXACT blackbody hue
+        //ht granules boost intensity of the EXACT blackbody hue
         colHot=baseColor*1.2;
-        // Blend plasma layers
+        //blend plasma layers
         PlasmaCol=mix(colDark,colOrign,smoothstep(.3,.4,plasmaPattern));
         PlasmaCol=mix(PlasmaCol,colHot,smoothstep(.4,.75,plasmaPattern));
         PlasmaCol=mix(PlasmaCol,colPeak,smoothstep(.75,.98,plasmaPattern));
     }
     
     else{
-        // --- MODE 0: CUSTOM COLOR PRESERVING RAMP ---
+        //MODE 0: custom color preserving ramp
         baseColor=u_blackbodyColor*.25;
         colDark=baseColor*.08;
         colOrign=baseColor;
         
         vec3 maxColor=baseColor/max(max(baseColor.r,baseColor.g),max(baseColor.b,.001));
-        colHot=mix(colOrign,maxColor*1,.5);// Preserves base hue without red shift
-        colPeak=mix(colHot*1.6,vec3(1.1),.25);// Gentle peak to prevent yellow blowout
+        colHot=mix(colOrign,maxColor*1,.5);// preserves base hue without red shift
+        colPeak=mix(colHot*1.6,vec3(1.1),.25);// gentle peak to prevent yellow blowout
         
-        // Blend plasma layers
+        // blend plasma layers
         PlasmaCol=mix(colDark,colOrign,smoothstep(.15,.35,plasmaPattern));
         PlasmaCol=mix(PlasmaCol,colHot,smoothstep(.35,.75,plasmaPattern));
         PlasmaCol=mix(PlasmaCol,colPeak,smoothstep(.75,.98,plasmaPattern));
     }
     
-    // Apply Sunspots
+    // apply sunspots
     PlasmaCol*=getSunspotMask(fragLocalPos,u_time);
     
     // Limb & Rim Glow
